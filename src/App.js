@@ -6,13 +6,32 @@ import {GlobalContext} from "./components/GlobalContext";
 
 export default class App extends React.Component {
 
-  //Let's declare our main state here, it would be global, and can be shared!
+
+  GetData(localStorageKey) {
+    let str = localStorage.getItem(localStorageKey);
+    if (str !== null)
+    {
+      try  {
+        return JSON.parse(str);
+      }
+      catch {
+        return null;
+      }
+    }
+    return  null ;
+  }
+  
+  SetData(localStorageKey, value) {
+    return localStorage.setItem(localStorageKey, JSON.stringify(value));
+  }
+
   setSession = (session) => {
     this.setState({ session });
+    this.SetData('spiderformsession',session);
   };
 
   state = {
-    session: null,
+    session: this.GetData('spiderformsession'),
     setSession: this.setSession,
   }
  

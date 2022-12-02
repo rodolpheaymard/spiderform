@@ -9,11 +9,17 @@ class SfLogin extends SfComponent {
    
     constructor(props) {
       super(props);
-      this.state = { errorMessage : null ,
-                     session : null } ;
+      this.state = {errorMessage : null ,
+                    session : null};       
 
       this.handleLogin = this.handleLogin.bind(this);
       this.handleLogout = this.handleLogout.bind(this);
+    }
+
+    componentDidMount()
+    {
+        const context = this.context;
+        this.setState({session : context.session});   
     }
 
 
@@ -23,7 +29,6 @@ class SfLogin extends SfComponent {
         this.setState({ errorMessage : null ,   session : null });
         const context = this.context;
         context.setSession(null);
-
         this.props.rerender();
       }
 

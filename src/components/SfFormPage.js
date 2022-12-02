@@ -12,7 +12,13 @@ class SfFormPage extends SfComponent {
     constructor(props)
     {
       super(props);
-      this.state = {};
+      this.state = {session : null};       
+    }
+
+    componentDidMount()
+    {
+        const context = this.context;
+        this.setState({session : context.session});   
     }
 
     rerender=()=>{

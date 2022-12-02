@@ -43,6 +43,8 @@ class SfComponent extends React.Component {
     IsMobile = () => {
       return this.state.displaymode === SfComponent.DisplayMobile;
     }    
+
+
 }
 
 export default SfComponent;
