@@ -75,3 +75,31 @@ input[type="submit"]:hover {
   font-size: 14px;
   margin: 5px;
 }
+
+.SfQuestion {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: flex-start;
+	align-content: flex-start;
+  width: 100%;
+}
+
+.SfQuestionInfo {
+  margin:10px 0px 0px 20px;
+}
+
+.SfQuestionChoices {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: flex-start;
+	align-content: flex-start;
+  width: 100%;
+ }
+
+.SfQuestionChoice {
+  margin:5px 0px 0px 50px;
+}
