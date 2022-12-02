@@ -1,25 +1,26 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import SfFormPage from './components/SfFormPage';
+import {GlobalContext} from "./components/GlobalContext";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+export default class App extends React.Component {
+
+  //Let's declare our main state here, it would be global, and can be shared!
+  setSession = (session) => {
+    this.setState({ session });
+  };
+
+  state = {
+    session: null,
+    setSession: this.setSession,
+  }
+ 
+  render(){
+    return(
+      <GlobalContext.Provider value={this.state}>
+          <SfFormPage />
+      </GlobalContext.Provider>
+    )
+  }
 }
-
-export default App;
