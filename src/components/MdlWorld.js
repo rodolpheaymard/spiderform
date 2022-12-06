@@ -21,6 +21,8 @@ class MdlWorld
   load() {
     if (this.localmode === true)
     {
+      this.localdatamodel = {};
+      this.localdatamodel.objects = [];
       this.concepts = [];
       this.forms = [];
       return;
@@ -36,59 +38,7 @@ class MdlWorld
   login(username,passwd, callback, errorcallback) {
     if (this.localmode === true)
     {
-      let result = {};
-      if (username === "admin")
-      {
-        if (passwd === "admin2")
-        {
-          result.response = true;
-          result.message = "";
-          result.user =  {username : "admin", isadmin : true } ;
-        }
-        else
-        {
-          result.response = false;
-          result.message = "bad password";
-          result.user =  null ;     
-        }
-      } else if (username === "camille")
-      {
-        if (passwd === "camille")
-        {
-          result.response = true;
-          result.message = "";
-          result.user =  {username : "camille", isadmin : false } ;
-        }
-        else
-        {
-          result.response = false;
-          result.message = "bad password";
-          result.user =  null ;     
-   
-        }
-      } else if (username === "iris")
-      {
-        if (passwd === "iris")
-        {
-          result.response = true;
-          result.message = "";
-          result.user =  {username : "iris", isadmin : false } ;
-        }
-         else
-        {
-          result.response = false;
-          result.message = "bad password";
-          result.user =  null ;     
-   
-        }
-      } else
-      {
-        result.response = false;
-        result.message = "unknown user";
-        result.user =  null ;     
-      }
-      callback(result);  
-      return;
+      return this.localLogin(username, passwd, callback);
     }
 
     let cryptedpasswd = passwd;
@@ -104,7 +54,60 @@ class MdlWorld
               });
   }
 
-  loadData(callback, errorcallback) {
+  localLogin(username, passwd, callback) 
+  {
+    let result = {};
+    if (username === "admin") {
+      if (passwd === "admin2") {
+        result.response = true;
+        result.message = "";
+        result.user = { username: "admin", isadmin: true };
+      }
+
+      else {
+        result.response = false;
+        result.message = "bad password";
+        result.user = null;
+      }
+    } else if (username === "camille") {
+      if (passwd === "camille") {
+        result.response = true;
+        result.message = "";
+        result.user = { username: "camille", isadmin: false };
+      }
+
+      else {
+        result.response = false;
+        result.message = "bad password";
+        result.user = null;
+
+      }
+    } else if (username === "iris") {
+      if (passwd === "iris") {
+        result.response = true;
+        result.message = "";
+        result.user = { username: "iris", isadmin: false };
+      }
+
+      else {
+        result.response = false;
+        result.message = "bad password";
+        result.user = null;
+
+      }
+    }
+    else {
+      result.response = false;
+      result.message = "unknown user";
+      result.user = null;
+    }
+    callback(result);
+
+    return result;
+  }
+
+  loadData(callback, errorcallback) 
+  {
     if (this.localmode === true)
     {
       return;
@@ -119,17 +122,21 @@ class MdlWorld
             }, error => {
                 console.log(error);
                 errorcallback(error)
-              });
-    
+              });    
   }
 
   addForm( newform , callback, errorcallback)
   {
     if (this.localmode === true)
     {
+      let obj = newform;
+      obj.id = "form-" + this.localdatamodel.objects.length;
+      obj.type = "form";
+      obj.deleted = false;
+      this.localdatamodel.objects.push(obj);
+      callback(obj);
       return;
-    }
-    
+    }    
 
     let qryurl = this.server_url + "add/form"  ;
     axios.post(qryurl, newform , null)
