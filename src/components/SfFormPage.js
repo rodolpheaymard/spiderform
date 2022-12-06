@@ -5,14 +5,16 @@ import SfFormFiller from "./SfFormFiller";
 import SfLogin from "./SfLogin";
 import { GlobalContext } from "./GlobalContext";
 
+
 class SfFormPage extends SfComponent {
     
     static contextType = GlobalContext;
  
     constructor(props)
     {
-      super(props);
-      this.state = {session : null};       
+      super(props);      
+      this.state = {session : null};   
+      this.world = props.world;    
     }
 
     componentDidMount()
@@ -40,7 +42,7 @@ class SfFormPage extends SfComponent {
         const context = this.context;
         if( context.session !== null
             && context.session.user !== null
-            && context.session.user.isAdmin === true) 
+            && context.session.user.isadmin === true) 
             return true;
         return false;  
     }
@@ -48,14 +50,14 @@ class SfFormPage extends SfComponent {
     render() {
         let forms;
         if (this.isAdmin()) {
-            forms = <SfFormCreation/> ;
+            forms = <SfFormCreation world={this.world}/> ;
         } else if (this.isLoggued()) {
-            forms = <SfFormFiller /> ;      
+            forms = <SfFormFiller  world={this.world}/> ;      
         }
 
         return (
         <>
-          <SfLogin rerender={this.rerender}/>
+          <SfLogin rerender={this.rerender}  world={this.world}/>
           {forms}
         </> );
     }

@@ -3,7 +3,7 @@ class MdlForm {
     constructor()
     {
        this.name = "";
-       this.answers = {};
+       this.questions = [];
     }
   
 

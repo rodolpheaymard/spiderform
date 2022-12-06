@@ -2,10 +2,23 @@ import React from 'react';
 import './App.css';
 import SfFormPage from './components/SfFormPage';
 import {GlobalContext} from "./components/GlobalContext";
-
+import MdlWorld from './components/MdlWorld';
 
 export default class App extends React.Component {
 
+  constructor()
+  {
+    super();
+    this.world = new MdlWorld();
+
+    this.state = {
+      session: this.GetData('spiderformsession'),
+      setSession: this.setSession,
+    }
+    
+    this.server_url =process.env.REACT_APP_SERVER_URL;
+
+  }
 
   GetData(localStorageKey) {
     let str = localStorage.getItem(localStorageKey);
@@ -30,15 +43,11 @@ export default class App extends React.Component {
     this.SetData('spiderformsession',session);
   };
 
-  state = {
-    session: this.GetData('spiderformsession'),
-    setSession: this.setSession,
-  }
  
   render(){
     return(
       <GlobalContext.Provider value={this.state}>
-          <SfFormPage />
+          <SfFormPage world={this.world}/>
       </GlobalContext.Provider>
     )
   }

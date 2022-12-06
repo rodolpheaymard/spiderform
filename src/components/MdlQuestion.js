@@ -3,8 +3,8 @@ class MdlQuestion {
     constructor()
     {
         this.name = "";
-        this.question = "";
-        this.choices = {};
+        this.text = "";
+        this.choices = [];
     }
   
 }

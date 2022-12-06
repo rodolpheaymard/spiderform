@@ -9,11 +9,15 @@ class SfLogin extends SfComponent {
    
     constructor(props) {
       super(props);
+      this.world = props.world;
       this.state = {errorMessage : null ,
                     session : null};       
 
       this.handleLogin = this.handleLogin.bind(this);
       this.handleLogout = this.handleLogout.bind(this);
+      this.finalizeLogin = this.finalizeLogin.bind(this);
+      this.loginCallError = this.loginCallError.bind(this);
+      
     }
 
     componentDidMount()
@@ -36,22 +40,37 @@ class SfLogin extends SfComponent {
     {
       event.preventDefault();
 
-      var { uname, pass } = document.forms[0];
-      var newSession = new MdlSession();
-      var n = uname.value;
-      var p = pass.value;
-      var rc =  newSession.login(n, p);
+      var { uname, pass } = document.forms[0];     
+      this.world.login(uname.value, pass.value, this.finalizeLogin , this.loginCallError);
+    }
 
-      if (rc)  {
-         this.setState({ session : newSession });
-         const context = this.context;
-         context.setSession(newSession);
-         this.props.rerender();
+    finalizeLogin(response)
+    { 
+      if (response !== null)
+      {
+        if (response.response === true)
+        {
+          var newSession = new MdlSession();
+          newSession.user = response.user;
+          this.setState({ session : newSession });
+
+          const context = this.context;
+          context.setSession(newSession);
+          
+          this.props.rerender();
         }
-       else {
-         this.setState({ errorMessage : newSession.errorMessage });
+        else
+        {
+          this.setState({ session : null });
+           
+          this.setState({ errorMessage : response.message });          
+        }            
        }
+    }
 
+    loginCallError(error)
+    {
+      this.setState({ errorMessage : "unknown error while login" });          
     }
 
    
@@ -71,8 +90,8 @@ class SfLogin extends SfComponent {
         <form className="SfLoginHeader">
             <div>
               Hello {this.state.session !== null 
-                     && this.state.session.user.userName !== null ?
-                            this.state.session.user.userName : "null"}, you are logged in
+                     && this.state.session.user.username !== null ?
+                            this.state.session.user.username : "null"}, you are logged in
             </div>      
             <div className="SfButtonContainer">
               <input type="submit" value="logout" onClick={this.handleLogout}/>         
