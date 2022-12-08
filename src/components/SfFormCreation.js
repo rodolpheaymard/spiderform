@@ -122,7 +122,9 @@ class SfFormCreation extends SfComponent {
 
                   <p> questions list</p>
                   <div>
-                  {this.state.current_form !== null ?
+                  {this.state.current_form !== null && 
+                   this.state.current_form.question !== null &&
+                   this.state.current_form.question !== undefined ?
                         this.state.current_form.questions.map((q, i) => 
                         <div key={i}>
                           <SfQuestion question={q} key={q.id}/>
