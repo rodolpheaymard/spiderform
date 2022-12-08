@@ -15,9 +15,6 @@ export default class App extends React.Component {
       session: this.GetData('spiderformsession'),
       setSession: this.setSession,
     }
-    
-    this.server_url =process.env.REACT_APP_SERVER_URL;
-
   }
 
   GetData(localStorageKey) {

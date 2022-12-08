@@ -7,9 +7,13 @@ class MdlWorld
   {
     this.forms = [];
     this.concepts = [];
-    this.server_url = process.env.REACT_APP_SERVER_URL + "/api/";
+    let envstr = process.env.NODE_ENV ;
+    this.server_url =  ( envstr === 'production' ? 
+                          process.env.REACT_APP_PROD_API_URL : 
+                          process.env.REACT_APP_DEV_API_URL );
 
-    this.localmode = true;
+
+    this.localmode = false;
 
     try {
         this.load();                 
