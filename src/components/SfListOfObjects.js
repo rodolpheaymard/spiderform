@@ -34,7 +34,9 @@ class SfListOfObjects extends SfComponent {
       this.onErrorObjectAdded = this.onErrorObjectAdded.bind(this);
       this.handleEdit = this.handleEdit.bind(this);
       this.handleDelete = this.handleDelete.bind(this);
-    }
+      this.onObjectDeleted = this.onObjectDeleted.bind(this);
+      this.onErrorObjectDeleted = this.onErrorObjectDeleted.bind(this);
+     }
 
     componentDidUpdate(prevProps) {
       if (this.props.dataMap !== prevProps.dataMap ||  this.props.objectType !== prevProps.objectType ) 
@@ -58,7 +60,7 @@ class SfListOfObjects extends SfComponent {
   
       // var { addnewform_name } = document.forms["addnewform"];
       // let newformname = addnewform_name.value;
-      
+
       // console.log("listofobjects handleAdd length = " + this.state.objects.length);
 
       this.world.addObject( { id : "", type : this.objectType  } , this.onObjectAdded, this.onErrorObjectAdded);
@@ -88,24 +90,40 @@ class SfListOfObjects extends SfComponent {
       // console.log("listofobjects onObjectAdded length after = " + this.state.objects.length);
     }
     
-    handleEdit(event) 
+    handleEdit(obj) 
     {
     }
 
-    handleDelete(event) 
+    handleDelete(obj) 
+    {
+      this.world.deleteObject( obj , this.onObjectDeleted, this.onErrorObjectDeleted);
+    }
+ 
+    onErrorObjectDeleted(response)
     {
     }
-    
+
+    onObjectDeleted(delobj)
+    { 
+      let found =  this.state.objects.findIndex( e => (e.id === delobj.id) ) ;
+      if (found !== -1)
+      {
+        let newlist = this.state.objects.map((x) => x); 
+        newlist.splice(found,1);
+        this.setState({ objects: newlist}) ;
+      }
+    }
+
     render()
     {
-      console.log("listofobjects onObjectAdded render , length = " + this.state.objects.length);
-      let globalColumns = this.columns.map((x) => x);
+      //console.log("listofobjects onObjectAdded render , length = " + this.state.objects.length);
+      let globalColumns = this.columns.map((x) => x); // to duplicate the list
       globalColumns.push({ title : "Actions" , key : "__actions" , dataIndex : "__actions",
                             render : (_, record) => (
                               <>
                               <Space>
-                              <Button onClick={this.handleEdit} type="primary" className="sfBtnEdit">Edit</Button>
-                              <Button onClick={this.handleDelete} type="primary" className="sfBtnDelete">Delete</Button>
+                                <Button onClick={()=> this.handleEdit(record)}  type="primary" className="sfBtnEdit" key={record.id}>Edit</Button>
+                                <Button onClick={()=> this.handleDelete(record)} type="primary" className="sfBtnDelete" key={record.id}>Delete</Button>
                               </Space>
                               </>
                               )});

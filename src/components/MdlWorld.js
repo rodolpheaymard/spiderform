@@ -40,7 +40,6 @@ class MdlWorld
 
   loadData(callback, errorcallback) 
   {
-
     let qryurl = this.server_url + "all/concept/form/question/choice"  ;
     axios.get(qryurl)     
          .then( res =>  {
@@ -73,6 +72,17 @@ class MdlWorld
     }, error => {
       errorcallback(error);
     });
+  } 
+  
+  deleteObject( objToDelete , callback, errorcallback)
+  {
+    let qryurl = this.server_url + "remove/" + objToDelete.id ;
+    axios.post(qryurl, {} , null)
+    .then ( res => {
+      callback(objToDelete);
+    }, error => {
+      errorcallback(error);
+    });
   }
 
   columnsForType(objectType)
@@ -82,28 +92,31 @@ class MdlWorld
     switch(objectType)
     {
       case "user" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
-        result.push( { key:"username" , title : "User Name", dataIndex: "username" } );
+        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none"} );
+        result.push( { key:"username" , title : "User Name", dataIndex: "username" , dataChooser: "text"} );
         break;
       case "concept" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
-        result.push( { key:"name" , title : "Name", dataIndex: "name" } );
-        result.push( { key:"explanation" , title : "Explanation", dataIndex: "explanation" } );
-        result.push( { key:"jobs" , title : "Jobs", dataIndex: "jobs" } );
+        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
+        result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
+        result.push( { key:"explanation" , title : "Explanation", dataIndex: "explanation" , dataChooser: "text"} );
+        result.push( { key:"jobs" , title : "Jobs", dataIndex: "jobs" , dataChooser: "text"} );
         break;
       case "form" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
-        result.push( { key:"name" , title : "Name", dataIndex: "name" } );
+        result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
+        result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
        break;
       case "question" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
-        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" } );
-        result.push( { key:"text" , title : "Text", dataIndex: "text" } );
-        break;
+        result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
+        result.push( { key:"form" , title : "In Form", dataIndex: "form", dataChooser: "select:form" } );
+        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" , dataChooser: "text"} );
+        result.push( { key:"text" , title : "Text", dataIndex: "text", dataChooser: "text" } );
+         break;
       case "choice" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
-        result.push( { key:"text" , title : "Text", dataIndex: "text" } );
-        result.push( { key:"image" , title : "Image", dataIndex: "image" } );
+        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
+        result.push( { key:"form" , title : "In Form", dataIndex: "form", dataChooser: "select:form" } );
+        result.push( { key:"question" , title : "For Question", dataIndex: "question", dataChooser: "select:question" } );
+        result.push( { key:"text" , title : "Text", dataIndex: "text" , dataChooser: "text"} );
+        result.push( { key:"image" , title : "Image", dataIndex: "image" , dataChooser: "text"} );
         break;
 
       default:

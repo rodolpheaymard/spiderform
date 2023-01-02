@@ -20,8 +20,7 @@ class SfFormCreation extends SfComponent {
       this.onDataLoaded= this.onDataLoaded.bind(this);
       this.onErrorDataLoaded= this.onErrorDataLoaded.bind(this);
       this.buildDataSet= this.buildDataSet.bind(this);    
-      this.handleChooseType= this.handleChooseType.bind(this);    
-      
+      this.handleChooseType= this.handleChooseType.bind(this);          
     }
 
     
@@ -70,13 +69,13 @@ class SfFormCreation extends SfComponent {
 
     handleChooseType(chosenValue) 
     {
-      console.log("handleChooseType " + chosenValue );
+      //console.log("handleChooseType " + chosenValue );
       this.setState({ currObjType : chosenValue });  
     }
 
     render()
     {
-      console.log("render  form creation " + this.state.currObjType );
+      //console.log("render  form creation " + this.state.currObjType );
       return ( <>
                    <div className="sfPageTitle"> Administration Back-Office </div>
 
