@@ -34,30 +34,31 @@ class MdlWorld
     let qryurl = this.server_url + "all/concept/form/question/choice"  ;
     axios.get(qryurl)     
          .then( res =>  {
-          this.datamap.set("concept",res.data.list1);
-          this.datamap.set("form",res.data.list2);
-          this.datamap.set("question",res.data.list3);
-          this.datamap.set("choice",res.data.list4);
-              
-              let datamodel = { concepts : res.data.list1 ,
-                                forms : res.data.list2,
-                                questions : res.data.list3 ,
-                                choices : res.data.list4  };
-              callback(datamodel);  
+            this.datamap.set("concept",res.data.list1);
+            this.datamap.set("form",res.data.list2);
+            this.datamap.set("question",res.data.list3);
+            this.datamap.set("choice",res.data.list4);
+                
+            let datamodel = { concepts : res.data.list1 ,
+                              forms : res.data.list2,
+                              questions : res.data.list3 ,
+                              choices : res.data.list4  };
+            callback(datamodel);  
+
             }, error => {
                 console.log(error);
                 errorcallback(error)
               });    
   }
 
-  addObject( objectType , callback, errorcallback)
+  addObject( objStarter , callback, errorcallback)
   {
-    let qryurl = this.server_url + "add/" + objectType  ;
-    let newobj = {id : "" , type : objectType , deleted : false };
+    let qryurl = this.server_url + "add/" + objStarter.type  ;
+    let newobj = {id : objStarter.id , type : objStarter.type , deleted : false };
     axios.post(qryurl, newobj , null)
     .then ( res => {
 
-      this.datamap.get(res.data.type).push(res.data);
+      //this.datamap.get(res.data.type).push(res.data);
       callback(res.data);
     }, error => {
       errorcallback(error);
