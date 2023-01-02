@@ -1,4 +1,5 @@
 import axios from 'axios';
+const dotenv = require('dotenv');
 
 
 class MdlWorld 
@@ -6,13 +7,22 @@ class MdlWorld
   constructor() 
   {
     this.datamap = new Map();
-    let envstr = process.env.NODE_ENV ;
-    this.server_url =  ( envstr === 'production' ? 
-                          process.env.REACT_APP_PROD_API_URL : 
-                          process.env.REACT_APP_DEV_API_URL );
+    this.server_url =  process.env.REACT_APP_API_URL;
   }
 
+  init_dotenv()
+  {
+    dotenv.config();
+    const result = dotenv.config()
 
+    if (result.error) {
+      console.log( "dotenv error" );
+    }
+    else
+    {
+      console.log(result.parsed);
+    }
+  }
 
   login(username,passwd, callback, errorcallback) {
     let cryptedpasswd = passwd;
