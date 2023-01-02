@@ -112,3 +112,22 @@ input[type="submit"]:hover {
 	align-items: flex-start;
 	align-content: flex-start;
 }
+
+.sfAdminCard .ant-card-head  {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: flex-start;
+	align-content: flex-start;
+  width: 1500px;
+  background-color: #0b044b;
+  color: white;
+ }
+
+
+.sfPageTitle {
+  color: rgb(7, 105, 25);
+  font-size: x-large;
+  padding: 50px 50px 50px 50px;
+ }

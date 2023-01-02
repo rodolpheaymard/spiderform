@@ -1,3 +1,4 @@
+import React from "react";
 import SfComponent from "./SfComponent";
 
 class SfFormFiller extends SfComponent {

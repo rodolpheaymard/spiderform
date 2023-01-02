@@ -5,46 +5,16 @@ class MdlWorld
 {
   constructor() 
   {
-    this.forms = [];
-    this.concepts = [];
+    this.datamap = new Map();
     let envstr = process.env.NODE_ENV ;
     this.server_url =  ( envstr === 'production' ? 
                           process.env.REACT_APP_PROD_API_URL : 
                           process.env.REACT_APP_DEV_API_URL );
-
-
-    this.localmode = false;
-
-    try {
-        this.load();                 
-    } catch (error) {
-      console.log('An error has occurred while loading ', error);
-    }
   }
 
-  load() {
-    if (this.localmode === true)
-    {
-      this.localdatamodel = {};
-      this.localdatamodel.objects = [];
-      this.concepts = [];
-      this.forms = [];
-      return;
-    }
 
-    axios.get(this.server_url + "all/concept" )
-         .then(res => {   this.concepts = res.data;  });
-    axios.get(this.server_url + "all/form" )
-         .then(res => {   this.forms = res.data;  });
-         
-  }
 
   login(username,passwd, callback, errorcallback) {
-    if (this.localmode === true)
-    {
-      return this.localLogin(username, passwd, callback);
-    }
-
     let cryptedpasswd = passwd;
     if (cryptedpasswd === "")
         cryptedpasswd = "none";
@@ -58,70 +28,21 @@ class MdlWorld
               });
   }
 
-  localLogin(username, passwd, callback) 
-  {
-    let result = {};
-    if (username === "admin") {
-      if (passwd === "admin2") {
-        result.response = true;
-        result.message = "";
-        result.user = { username: "admin", isadmin: true };
-      }
-
-      else {
-        result.response = false;
-        result.message = "bad password";
-        result.user = null;
-      }
-    } else if (username === "camille") {
-      if (passwd === "camille") {
-        result.response = true;
-        result.message = "";
-        result.user = { username: "camille", isadmin: false };
-      }
-
-      else {
-        result.response = false;
-        result.message = "bad password";
-        result.user = null;
-
-      }
-    } else if (username === "iris") {
-      if (passwd === "iris") {
-        result.response = true;
-        result.message = "";
-        result.user = { username: "iris", isadmin: false };
-      }
-
-      else {
-        result.response = false;
-        result.message = "bad password";
-        result.user = null;
-
-      }
-    }
-    else {
-      result.response = false;
-      result.message = "unknown user";
-      result.user = null;
-    }
-    callback(result);
-
-    return result;
-  }
-
   loadData(callback, errorcallback) 
   {
-    if (this.localmode === true)
-    {
-      return;
-    }
 
-    let qryurl = this.server_url + "all/concept/form"  ;
+    let qryurl = this.server_url + "all/concept/form/question/choice"  ;
     axios.get(qryurl)     
          .then( res =>  {
+          this.datamap.set("concept",res.data.list1);
+          this.datamap.set("form",res.data.list2);
+          this.datamap.set("question",res.data.list3);
+          this.datamap.set("choice",res.data.list4);
+              
               let datamodel = { concepts : res.data.list1 ,
-                                forms : res.data.list2   };
+                                forms : res.data.list2,
+                                questions : res.data.list3 ,
+                                choices : res.data.list4  };
               callback(datamodel);  
             }, error => {
                 console.log(error);
@@ -129,28 +50,56 @@ class MdlWorld
               });    
   }
 
-  addForm( newform , callback, errorcallback)
+  addObject( objectType , callback, errorcallback)
   {
-    if (this.localmode === true)
-    {
-      let obj = newform;
-      obj.id = "form-" + this.localdatamodel.objects.length;
-      obj.type = "form";
-      obj.deleted = false;
-      this.localdatamodel.objects.push(obj);
-      callback(obj);
-      return;
-    }    
-
-    let qryurl = this.server_url + "add/form"  ;
-    axios.post(qryurl, newform , null)
+    let qryurl = this.server_url + "add/" + objectType  ;
+    let newobj = {id : "" , type : objectType , deleted : false };
+    axios.post(qryurl, newobj , null)
     .then ( res => {
+
+      this.datamap.get(res.data.type).push(res.data);
       callback(res.data);
     }, error => {
       errorcallback(error);
-    })    
+    });
   }
 
+  columnsForType(objectType)
+  {
+    var result = [];
+
+    switch(objectType)
+    {
+      case "user" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
+        result.push( { key:"username" , title : "User Name", dataIndex: "username" } );
+        break;
+      case "concept" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
+        result.push( { key:"name" , title : "Name", dataIndex: "name" } );
+        result.push( { key:"explanation" , title : "Explanation", dataIndex: "explanation" } );
+        result.push( { key:"jobs" , title : "Jobs", dataIndex: "jobs" } );
+        break;
+      case "form" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
+        result.push( { key:"name" , title : "Name", dataIndex: "name" } );
+       break;
+      case "question" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
+        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" } );
+        result.push( { key:"text" , title : "Text", dataIndex: "text" } );
+        break;
+      case "choice" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id" } );
+        result.push( { key:"text" , title : "Text", dataIndex: "text" } );
+        result.push( { key:"image" , title : "Image", dataIndex: "image" } );
+        break;
+
+      default:
+        break;
+    }
+    return result;
+  }
 
 }
 
