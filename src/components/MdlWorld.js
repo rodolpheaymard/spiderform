@@ -38,26 +38,70 @@ class MdlWorld
               });
   }
 
+  cleanDataMap()
+  {
+    this.datamap.clear();
+  }
+  
+  updateDataMap(obj)
+  {
+    if (this.datamap.has(obj.id))
+    {
+      this.datamap.delete(obj.id);
+    }
+    this.datamap.set(obj.id, obj);
+  }
+
+  updateDataMapList(list)
+  {
+    list.forEach( c => this.updateDataMap(c));
+  }
+  
+  removeDataMap(obj)
+  {
+    if (this.datamap.has(obj.id))
+    {
+      this.datamap.delete(obj.id);
+    }
+  }
+
+  getObjectsByType(objtype)
+  {
+    let result = [];
+    this.datamap.forEach( (obj, id, map) => { if (obj.type === objtype) { result.push(obj);} } );
+    return result;
+  }
+
   loadData(callback, errorcallback) 
   {
-    let qryurl = this.server_url + "all/concept/form/question/choice"  ;
+    let qryurl = this.server_url + "all/concept/form/question/choice/matchingscore"  ;
     axios.get(qryurl)     
          .then( res =>  {
-            this.datamap.set("concept",res.data.list1);
-            this.datamap.set("form",res.data.list2);
-            this.datamap.set("question",res.data.list3);
-            this.datamap.set("choice",res.data.list4);
+          this.cleanDataMap();
+          this.updateDataMapList(res.data.list1);
+          this.updateDataMapList(res.data.list2);
+          this.updateDataMapList(res.data.list3);
+          this.updateDataMapList(res.data.list4);
+          this.updateDataMapList(res.data.list5);
                 
             let datamodel = { concepts : res.data.list1 ,
                               forms : res.data.list2,
                               questions : res.data.list3 ,
-                              choices : res.data.list4  };
-            callback(datamodel);  
+                              choices : res.data.list4  ,
+                              matchingscores : res.data.list5  };
+
+            if (callback !== null)
+            {
+              callback(datamodel);  
+            } 
 
             }, error => {
                 console.log(error);
-                errorcallback(error)
-              });    
+                if (errorcallback !== null)
+                {
+                  errorcallback(error); 
+                }
+            });    
   }
 
   addObject( objStarter , callback, errorcallback)
@@ -66,11 +110,17 @@ class MdlWorld
     let newobj = {id : objStarter.id , type : objStarter.type , deleted : false };
     axios.post(qryurl, newobj , null)
     .then ( res => {
+      this.updateDataMap(res.data);
 
-      //this.datamap.get(res.data.type).push(res.data);
-      callback(res.data);
+      if (callback !== null)
+      {
+        callback(res.data);  
+      } 
     }, error => {
-      errorcallback(error);
+      if (errorcallback !== null)
+      {
+        errorcallback(error);
+      }
     });
   } 
   
@@ -79,49 +129,88 @@ class MdlWorld
     let qryurl = this.server_url + "remove/" + objToDelete.id ;
     axios.post(qryurl, {} , null)
     .then ( res => {
-      callback(objToDelete);
+      this.removeDataMap(objToDelete);
+      if (callback !== null)
+      { 
+        callback(objToDelete);
+      }
     }, error => {
-      errorcallback(error);
+      if (errorcallback !== null)
+      {
+        errorcallback(error);
+      }
     });
   }
+
+  saveObject( objToSave , callback, errorcallback)
+  {
+    let qryurl = this.server_url + "save/" + objToSave.type;
+    axios.post(qryurl, objToSave , null)
+    .then ( res => {
+      this.updateDataMap(objToSave);
+
+      if (callback !== null)
+      {
+        callback(res.data);
+      }
+    }, error => {
+      if (errorcallback !== null)
+      {
+        errorcallback(error);
+      }
+    });
+  } 
+
 
   columnsForType(objectType)
   {
     var result = [];
-
     switch(objectType)
     {
       case "user" :
         result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none"} );
-        result.push( { key:"username" , title : "User Name", dataIndex: "username" , dataChooser: "text"} );
+        result.push( { key:"username" , title : "Login", dataIndex: "username" , dataChooser: "text"} );
+        result.push( { key:"password" , title : "Password", dataIndex: "password" , dataChooser: "password"} );
         break;
       case "concept" :
         result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
         result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
-        result.push( { key:"explanation" , title : "Explanation", dataIndex: "explanation" , dataChooser: "text"} );
+        result.push( { key:"explanation" , title : "Explanation", dataIndex: "explanation" , dataChooser: "textmultiline"} );
         result.push( { key:"jobs" , title : "Jobs", dataIndex: "jobs" , dataChooser: "text"} );
         break;
       case "form" :
         result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
         result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
        break;
+       case "sequence" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
+        result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
+        result.push( { key:"form" , title : "Form", dataIndex: "form" , dataChooser: "select", dataChooserType: "form", dataChooserLabel: "name"} );
+       break;
       case "question" :
         result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
-        result.push( { key:"form" , title : "In Form", dataIndex: "form", dataChooser: "select:form" } );
-        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" , dataChooser: "text"} );
-        result.push( { key:"text" , title : "Text", dataIndex: "text", dataChooser: "text" } );
-         break;
-      case "choice" :
+        result.push( { key:"form" , title : "Form", dataIndex: "form", dataChooser: "none", dataCalculated: "sequence.form" } );
+        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" , dataChooserType: "sequence" , dataChooserLabel: "name"} );
+        result.push( { key:"text" , title : "Text", dataIndex: "text", dataChooser: "textmultiline" } );
+      break;
+        case "choice" :
         result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
-        result.push( { key:"form" , title : "In Form", dataIndex: "form", dataChooser: "select:form" } );
-        result.push( { key:"question" , title : "For Question", dataIndex: "question", dataChooser: "select:question" } );
-        result.push( { key:"text" , title : "Text", dataIndex: "text" , dataChooser: "text"} );
-        result.push( { key:"image" , title : "Image", dataIndex: "image" , dataChooser: "text"} );
+        result.push( { key:"question" , title : "Question", dataIndex: "question", dataChooser: "select", dataChooserType: "question" , dataChooserLabel: "text"} );
+        result.push( { key:"text" , title : "Text", dataIndex: "text" , dataChooser: "textmultiline"} );
+        result.push( { key:"image" , title : "Image", dataIndex: "image" , dataChooser: "imageurl"} );
         break;
-
-      default:
+    case "matchingscore" :
+        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
+        result.push( { key:"choice" , title : "Choice", dataIndex: "choice", dataChooser: "select", dataChooserType: "choice" , dataChooserLabel: "text" } );
+        result.push( { key:"concept" , title : "Concept", dataIndex: "concept", dataChooser: "select", dataChooserType: "concept" , dataChooserLabel: "name" } );
+        result.push( { key:"score" , title : "Score", dataIndex: "number" , dataChooser: "number"} );
+        result.push( { key:"explanation" , title : "Explanation", dataIndex: "text" , dataChooser: "textmultiline"} );
+        break;
+    default:
         break;
     }
+
+    
     return result;
   }
 
@@ -131,5 +220,21 @@ export default MdlWorld;
 
 
 
+//const columns: ColumnsType<DataType> = [
+//  {
+//    title: 'Name',
+//    dataIndex: 'name',
+//    key: 'name',
+//    filters: [
+//      { text: 'Joe', value: 'Joe' },
+//      { text: 'Jim', value: 'Jim' },
+//    ],
+//    filteredValue: filteredInfo.name || null,
+//    onFilter: (value: string, record) => record.name.includes(value),
+//    sorter: (a, b) => a.name.length - b.name.length,
+//    sortOrder: sortedInfo.columnKey === 'name' ? sortedInfo.order : null,
+//    ellipsis: true,
+//  },
+  
 
 

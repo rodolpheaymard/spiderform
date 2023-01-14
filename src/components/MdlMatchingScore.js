@@ -1,4 +1,4 @@
-class MdlMatch {
+class MdlMatchingScore {
  
     constructor()
     {
@@ -10,4 +10,4 @@ class MdlMatch {
   
 }
 
-export default MdlMatch;
+export default MdlMatchingScore;
