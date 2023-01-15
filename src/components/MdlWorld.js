@@ -189,7 +189,7 @@ class MdlWorld
       case "question" :
         result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
         result.push( { key:"form" , title : "Form", dataIndex: "form", dataChooser: "none", dataCalculated: "sequence.form" } );
-        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" , dataChooserType: "sequence" , dataChooserLabel: "name"} );
+        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence", dataChooser: "select" , dataChooserType: "sequence" , dataChooserLabel: "name"} );
         result.push( { key:"text" , title : "Text", dataIndex: "text", dataChooser: "textmultiline" } );
         result.push( { key:"multichoice" , title : "Multi", dataIndex: "multichoice", dataChooser: "select", dataChooserType: "yes_or_no"  } );
       break;
