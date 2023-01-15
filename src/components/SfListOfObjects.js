@@ -2,6 +2,7 @@ import React from "react";
 import SfComponent from "./SfComponent";
 import { GlobalContext } from "./GlobalContext";
 import { Table, Card, Button, Space, Modal} from "antd"; 
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import SfEditObject from "./SfEditObject";
 
 
@@ -120,7 +121,18 @@ class SfListOfObjects extends SfComponent {
 
     handleDelete(obj) 
     {
-      this.world.deleteObject( obj , this.onObjectDeleted, this.onErrorObjectDeleted);
+      Modal.confirm({
+        title: 'Confirm',
+        icon: <ExclamationCircleOutlined />,
+        content: 'Do you really want to DELETE ?',
+        okText: "Yes, sure",
+        cancelText: "no, I don't mean it",
+        onOk: () => {
+         
+          // Let's do it ,  as it is confirmed 
+          return this.world.deleteObject( obj , this.onObjectDeleted, this.onErrorObjectDeleted);
+        }
+      });
     }
  
     onErrorObjectDeleted(response)

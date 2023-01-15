@@ -74,22 +74,13 @@ class MdlWorld
 
   loadData(callback, errorcallback) 
   {
-    let qryurl = this.server_url + "all/concept/form/question/choice/matchingscore"  ;
-    axios.get(qryurl)     
+    let qryurl = this.server_url + "all/"  ;
+    let filter = {types : ["concept","form","question","sequence","choice","matchingscore"]};
+    axios.post(qryurl, filter , null)    
          .then( res =>  {
-          this.cleanDataMap();
-          this.updateDataMapList(res.data.list1);
-          this.updateDataMapList(res.data.list2);
-          this.updateDataMapList(res.data.list3);
-          this.updateDataMapList(res.data.list4);
-          this.updateDataMapList(res.data.list5);
-                
-            let datamodel = { concepts : res.data.list1 ,
-                              forms : res.data.list2,
-                              questions : res.data.list3 ,
-                              choices : res.data.list4  ,
-                              matchingscores : res.data.list5  };
-
+            this.cleanDataMap();
+            this.updateDataMapList(res.data.objects);                
+            let datamodel = { objects : res.data.objects  };
             if (callback !== null)
             {
               callback(datamodel);  
@@ -161,6 +152,14 @@ class MdlWorld
     });
   } 
 
+  getTypesList() {
+    return [{ value: "concept", label: "Concepts" },
+            { value: "form", label: "Forms" },
+            { value: "sequence", label: "Sequences" },
+            { value: "question", label: "Questions" },
+            { value: "choice", label: "Choices" },
+            { value: "matchingscore", label: "Scores" }];
+  }
 
   columnsForType(objectType)
   {
@@ -192,6 +191,7 @@ class MdlWorld
         result.push( { key:"form" , title : "Form", dataIndex: "form", dataChooser: "none", dataCalculated: "sequence.form" } );
         result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence" , dataChooserType: "sequence" , dataChooserLabel: "name"} );
         result.push( { key:"text" , title : "Text", dataIndex: "text", dataChooser: "textmultiline" } );
+        result.push( { key:"multichoice" , title : "Multi", dataIndex: "multichoice", dataChooser: "select", dataChooserType: "yes_or_no"  } );
       break;
         case "choice" :
         result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );

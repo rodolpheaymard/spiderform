@@ -42,22 +42,14 @@ class SfFormCreation extends SfComponent {
     {
       let dataSet = new Map();
       if (response !== null)
-      {
-        dataSet.set("form", response.forms );
-        dataSet.set("concept", response.concepts );
-        dataSet.set("sequence", response.sequences );
-        dataSet.set("question", response.questions );
-        dataSet.set("choice", response.choices );  
-        dataSet.set("matchingscore", response.matchingscores );  
-      }
-      else
-      {
-        dataSet.set("form", []);
-        dataSet.set("concept", []);
-        dataSet.set("sequence", [] );
-        dataSet.set("question", [] );
-        dataSet.set("choice", [] );         
-        dataSet.set("matchingscore", [] );         
+      {     
+
+        this.world.getTypesList().forEach( typ => {
+          let objs = [];
+          response.objects.forEach( obj => {  if (obj.type === typ.value) { objs.push(obj); } });
+          dataSet.set(typ.value, objs);          
+        })
+      
       }
       return dataSet;
     }
@@ -85,16 +77,13 @@ class SfFormCreation extends SfComponent {
 
                    <Select   style={{ width: 120 }}  onChange={this.handleChooseType}
                               defaultValue={this.state.currObjType}  
-                            options={[ { value: "concept",  label: "Concepts"  } ,
-                            { value: "form",  label: "Forms"  } ,
-                            { value: "sequence",  label: "Sequences"  } ,
-                            { value: "question",  label: "Questions"  } ,
-                            { value: "choice",  label: "Choices"  }  ,
-                            { value: "matchingscore",  label: "Scores"  }  ]} />
+                            options={this.world.getTypesList()} />
                    <SfListOfObjects world={this.world} objectType={this.state.currObjType} dataMap={this.state.data}/>
                            
                 </>              
          );
+
+      
     }
 }
 

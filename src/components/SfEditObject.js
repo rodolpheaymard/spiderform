@@ -38,37 +38,50 @@ class SfEditObject extends SfComponent {
    
     handleChangeInput(key,e) 
     {
-        console.log( " handleChange key=" + key + " value=" + e.target.value);
+        //console.log( " handleChange key=" + key + " value=" + e.target.value);
         this.state.curObject[key] = e.target.value;
     }
 
     handleChangeSelect(key,val) 
     {
-        console.log( " handleChange key=" + key + " value=" + val);
+        //console.log( " handleChange key=" + key + " value=" + val);
         this.state.curObject[key] = val;
     }
 
   
     
     getOptionsListType(coldef)
-    {
-      let objectsList = this.world.getObjectsByType(coldef.dataChooserType);
+    {  
       let result = [];
-      objectsList.forEach(  c => { 
-        let cid = c.id;
+   
+      if (coldef.dataChooserType === "yes_or_no")
+      {
+        result.push( <Option value="no" key="no" >no</Option> ); 
+        result.push( <Option value="yes" key="yes" >yes</Option> ); 
+      }
+      else
+      {
+        let objectsList = this.world.getObjectsByType(coldef.dataChooserType);      
+        objectsList.forEach(  c => { 
+          let cid = c.id;
 
-        console.log( " c[" + coldef.dataChooserLabel + "] = " + c[coldef.dataChooserLabel] );
+          console.log( " c[" + coldef.dataChooserLabel + "] = " + c[coldef.dataChooserLabel] );
 
-        let lbl = c[coldef.dataChooserLabel];
-        if (lbl === undefined || lbl === null)
-        {
-          lbl = "";
-        }
+          let lbl = c[coldef.dataChooserLabel];
+          if (lbl === undefined || lbl === null)
+          {
+            lbl = "";
+          }
 
-        lbl = lbl.substring(0,20);
-        result.push( <Option value={c.id} key={c.id} >{cid + " " + lbl}</Option> ); 
-       })
-
+          if (lbl.length > 40) 
+          {
+            lbl = lbl.substring(0,40) + "..." ;
+          }
+          
+          result.push( <Option value={c.id} key={c.id} >{cid + " " + lbl}</Option> ); 
+        })
+      }
+      
       return result;
     }
     
