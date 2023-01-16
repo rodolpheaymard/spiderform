@@ -40,12 +40,16 @@ class SfEditObject extends SfComponent {
     {
         //console.log( " handleChange key=" + key + " value=" + e.target.value);
         this.state.curObject[key] = e.target.value;
+
+        this.setState( { curObject : this.state.curObject } );
     }
 
     handleChangeSelect(key,val) 
     {
         //console.log( " handleChange key=" + key + " value=" + val);
         this.state.curObject[key] = val;
+        this.setState( { curObject : this.state.curObject } );
+    
     }
 
   

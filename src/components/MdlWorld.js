@@ -95,6 +95,18 @@ class MdlWorld
             });    
   }
 
+  getDataSet()
+  {
+    let dataSet = new Map();
+   
+    this.getTypesList().forEach( typ => {
+      let objs = this.getObjectsByType(typ);
+      dataSet.set(typ.value, objs);          
+    })
+  
+    return dataSet;
+  }
+
   addObject( objStarter , callback, errorcallback)
   {
     let qryurl = this.server_url + "add/" + objStarter.type  ;

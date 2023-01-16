@@ -14,23 +14,15 @@ class SfListOfObjects extends SfComponent {
     constructor(props) {
       super(props);
       this.world = props.world;      
-      this.objectType = props.objectType;   
+       
       
-      let objlist = [];
-      if (props.dataMap !== null)
-      {
-        objlist = props.dataMap.get(props.objectType);
-      }
-      if (objlist === null || objlist === undefined)
-      {
-        objlist = [];
-      }
-
-      this.state = {  objects : objlist, 
+      this.state = {  objectType : props.objectType,
+                      columns : [],
+                      objects : [],
                       curObject : null,
-                      editing : false }; 
+                      editing : false  }; 
 
-      this.columns = this.world.columnsForType(this.objectType);            
+      this.updateObjectsList(this.state.objectType) ;
       
       this.handleAdd = this.handleAdd.bind(this);
       this.onObjectAdded = this.onObjectAdded.bind(this);
@@ -47,26 +39,37 @@ class SfListOfObjects extends SfComponent {
       this.onErrorObjectDeleted = this.onErrorObjectDeleted.bind(this);
      }
 
-    componentDidUpdate(prevProps) {
-      if (this.props.dataMap !== prevProps.dataMap ||  this.props.objectType !== prevProps.objectType ) 
+    componentDidUpdate(prevProps) 
+    {
+      if (this.props.objectType !== prevProps.objectType ) 
       {
-        this.objectType = this.props.objectType;
-        this.columns = this.world.columnsForType(this.objectType);            
-    
-        let objlist = this.props.dataMap.get(this.objectType);
-        if (objlist === null || objlist === undefined)
-        {
-          objlist = [];
-        }
-        this.setState( { objects : objlist} );
+        let objType = this.props.objectType ;
+        this.setState({ objectType: objType  });
+        this.updateObjectsList(objType );
       }
     }
    
 
+    updateObjectsList(objectType) 
+    {
+      let cols = this.world.columnsForType(objectType);
+      let objlist = [];
+      if (this.world !== null)
+      {
+        objlist = this.world.getObjectsByType(objectType);
+        if (objlist === null || objlist === undefined)
+        {
+          objlist = [];
+        }
+      }
+      this.setState({ columns : cols,
+                      objects: objlist });
+    }
+
     handleAdd(event) 
     {
       event.preventDefault();
-      this.world.addObject( { id : "", type : this.objectType  } , this.onObjectAdded, this.onErrorObjectAdded);
+      this.world.addObject( { id : "", type : this.state.objectType  } , this.onObjectAdded, this.onErrorObjectAdded);
     }
 
     onErrorObjectAdded(response)
@@ -88,6 +91,7 @@ class SfListOfObjects extends SfComponent {
       {
         this.setState({ curObject : newobj}) ;
       }
+     
       // console.log("listofobjects onObjectAdded length after = " + this.state.objects.length);
     }
     
@@ -111,6 +115,7 @@ class SfListOfObjects extends SfComponent {
     onObjectSaved(newobj)
     { 
       console.log("listofobjects onObjectSaved ");
+      this.updateObjectsList(this.state.objectType);    
     }
     
     handleEditCancel() 
@@ -154,7 +159,7 @@ class SfListOfObjects extends SfComponent {
     render()
     {
       // console.log("listofobjects onObjectAdded render , length = " + this.state.objects.length);
-      let globalColumns = this.columns.map((x) => x); // to duplicate the list
+      let globalColumns = this.state.columns.map((x) => x); // to duplicate the list
       globalColumns.push({ title : "Actions" , 
                            key : "__actions" , 
                            dataIndex : "__actions",
@@ -168,11 +173,11 @@ class SfListOfObjects extends SfComponent {
                               )});
 
       return ( <>      
-               <Card title={this.objectType}  className="sfAdminCard">
+               <Card title={this.state.objectType }  className="sfAdminCard">
                
                <Table dataSource={this.state.objects} columns={globalColumns} pagination={false} rowKey={ record => record.id} />              
                
-               <Button onClick={this.handleAdd} type="primary" className="sfBtnAdd" > Add a {this.objectType} </Button>
+               <Button onClick={this.handleAdd} type="primary" className="sfBtnAdd" > Add a {this.state.objectType} </Button>
                
                
                <Modal open={this.state.editing} title="Edit" onOk={this.handleEditOk} onCancel={this.handleEditCancel}

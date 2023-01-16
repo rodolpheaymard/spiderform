@@ -15,11 +15,10 @@ class SfFormCreation extends SfComponent {
       super(props);
       this.world = props.world;
 
-      this.state = {  data : null , currObjType : "form" };
+      this.state = { currObjType : "form" };
 
       this.onDataLoaded= this.onDataLoaded.bind(this);
       this.onErrorDataLoaded= this.onErrorDataLoaded.bind(this);
-      this.buildDataSet= this.buildDataSet.bind(this);    
       this.handleChooseType= this.handleChooseType.bind(this);          
     }
 
@@ -35,32 +34,10 @@ class SfFormCreation extends SfComponent {
 
     onErrorDataLoaded(response)
     {
-      this.setState({ data : this.buildDataSet(null) });     
-    }
-
-    buildDataSet(response)
-    {
-      let dataSet = new Map();
-      if (response !== null)
-      {     
-
-        this.world.getTypesList().forEach( typ => {
-          let objs = [];
-          response.objects.forEach( obj => {  if (obj.type === typ.value) { objs.push(obj); } });
-          dataSet.set(typ.value, objs);          
-        })
-      
-      }
-      return dataSet;
-    }
+    }    
 
     onDataLoaded(response)
-    { 
-      if (response !== null)
-      {        
-        let dataSet = this.buildDataSet(response);
-        this.setState({ data: dataSet });
-      }
+    {       
     }
 
     handleChooseType(chosenValue) 
@@ -76,9 +53,9 @@ class SfFormCreation extends SfComponent {
                    <div className="sfPageTitle"> Administration Back-Office </div>
 
                    <Select   style={{ width: 120 }}  onChange={this.handleChooseType}
-                              defaultValue={this.state.currObjType}  
-                            options={this.world.getTypesList()} />
-                   <SfListOfObjects world={this.world} objectType={this.state.currObjType} dataMap={this.state.data}/>
+                             defaultValue={this.state.currObjType}  
+                             options={this.world.getTypesList()} />
+                   <SfListOfObjects world={this.world} objectType={this.state.currObjType} />
                            
                 </>              
          );
