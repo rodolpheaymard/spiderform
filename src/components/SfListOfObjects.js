@@ -21,8 +21,6 @@ class SfListOfObjects extends SfComponent {
                       objects : [],
                       curObject : null,
                       editing : false  }; 
-
-      this.updateObjectsList(this.state.objectType) ;
       
       this.handleAdd = this.handleAdd.bind(this);
       this.onObjectAdded = this.onObjectAdded.bind(this);
@@ -38,6 +36,11 @@ class SfListOfObjects extends SfComponent {
       this.onObjectDeleted = this.onObjectDeleted.bind(this);
       this.onErrorObjectDeleted = this.onErrorObjectDeleted.bind(this);
      }
+
+    componentDidMount() 
+    {
+      this.updateObjectsList(this.props.objectType);
+    }
 
     componentDidUpdate(prevProps) 
     {

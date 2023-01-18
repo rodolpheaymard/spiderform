@@ -173,50 +173,107 @@ class MdlWorld
             { value: "matchingscore", label: "Scores" }];
   }
 
+  sortColumn( a, b , col) {
+    let vala = a[col];
+    let valb = b[col];
+    return (isNaN(vala) && isNaN(valb) ? (vala || '').localeCompare(valb || '') : vala - valb);
+  }
+
+  getFilters( objectType, colKey)
+  {
+    let mapResult = new Map();
+    this.datamap.forEach( (obj, id, map) => { 
+                                if (obj.type === objectType) 
+                                { 
+                                  if(mapResult.has(obj[colKey]) !== true)
+                                  {
+                                    mapResult.set(obj[colKey],obj[colKey]);
+                                  }
+                                } 
+                              } );
+    let keysArray = [];
+    mapResult.forEach( (value,key) => keysArray.push(key) );
+    keysArray = keysArray.sort();
+    let result = [];
+    keysArray.forEach( a => result.push({text : a, value : a}));    
+    return result;  
+  }
+
+  applyFilter(value,record, colKey) 
+  {
+    if (record[colKey].indexOf(value) === 0)
+      return true;
+
+    return false;
+  }
+
+  getColumn( objectType, colKey , colTitle, colDataChooser , colDataChooserType = null, colDataChooserLabel = null, colDataCalculated = null)
+  {
+    let result =  { key : colKey , 
+                    title : colTitle,
+                    dataIndex: colKey, 
+                    dataChooser: colDataChooser,
+                    filters: this.getFilters( objectType, colKey),
+                    onFilter: (value, record) => this.applyFilter(value,record, colKey) ,
+                    sorter: (a, b) => this.sortColumn(a,b,colKey)
+                  };
+
+    if (colDataChooserType !== null) {
+      result.dataChooserType = colDataChooserType;
+    }
+    if (colDataChooserLabel !== null) {
+      result.dataChooserLabel = colDataChooserLabel;
+    }
+    if (colDataCalculated !== null) {
+      result.dataCalculated = colDataCalculated;
+    }    
+    return result;
+  }
+
   columnsForType(objectType)
   {
     var result = [];
     switch(objectType)
     {
       case "user" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none"} );
-        result.push( { key:"username" , title : "Login", dataIndex: "username" , dataChooser: "text"} );
-        result.push( { key:"password" , title : "Password", dataIndex: "password" , dataChooser: "password"} );
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "username" , "Login", "text") );
+        result.push( this.getColumn(objectType, "password" , "Password", "password") );
         break;
       case "concept" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
-        result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
-        result.push( { key:"explanation" , title : "Explanation", dataIndex: "explanation" , dataChooser: "textmultiline"} );
-        result.push( { key:"jobs" , title : "Jobs", dataIndex: "jobs" , dataChooser: "text"} );
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "name" , "Name", "text") );
+        result.push( this.getColumn(objectType, "explanation" , "Explanation", "textmultiline") );
+        result.push( this.getColumn(objectType, "jobs" , "Jobs", "text") );
         break;
       case "form" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
-        result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
-       break;
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "name" , "Name", "text") );
+      break;
        case "sequence" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
-        result.push( { key:"name" , title : "Name", dataIndex: "name" , dataChooser: "text"} );
-        result.push( { key:"form" , title : "Form", dataIndex: "form" , dataChooser: "select", dataChooserType: "form", dataChooserLabel: "name"} );
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "name" , "Name", "text") );
+        result.push( this.getColumn(objectType, "form" , "Form", "select" , "form", "name") );
        break;
       case "question" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id"  , dataChooser: "none"} );
-        result.push( { key:"form" , title : "Form", dataIndex: "form", dataChooser: "none", dataCalculated: "sequence.form" } );
-        result.push( { key:"sequence" , title : "Sequence", dataIndex: "sequence", dataChooser: "select" , dataChooserType: "sequence" , dataChooserLabel: "name"} );
-        result.push( { key:"text" , title : "Text", dataIndex: "text", dataChooser: "textmultiline" } );
-        result.push( { key:"multichoice" , title : "Multi", dataIndex: "multichoice", dataChooser: "select", dataChooserType: "yes_or_no"  } );
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "form" , "Form", "none" , null , null, "sequence.form") );
+        result.push( this.getColumn(objectType, "sequence" , "Sequence", "select", "sequence", "name") );
+        result.push( this.getColumn(objectType, "text" , "Text", "textmultiline") );
+        result.push( this.getColumn(objectType, "multichoice" , "Multi", "select", "yes_or_no") );
       break;
-        case "choice" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
-        result.push( { key:"question" , title : "Question", dataIndex: "question", dataChooser: "select", dataChooserType: "question" , dataChooserLabel: "text"} );
-        result.push( { key:"text" , title : "Text", dataIndex: "text" , dataChooser: "textmultiline"} );
-        result.push( { key:"image" , title : "Image", dataIndex: "image" , dataChooser: "imageurl"} );
+      case "choice" :
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "question" , "Question", "select", "question", "text") );
+        result.push( this.getColumn(objectType, "text" , "Text", "textmultiline") );
+        result.push( this.getColumn(objectType, "image" , "Image", "imageurl") );   
         break;
-    case "matchingscore" :
-        result.push( { key:"id" , title : "ID", dataIndex: "id" , dataChooser: "none" } );
-        result.push( { key:"choice" , title : "Choice", dataIndex: "choice", dataChooser: "select", dataChooserType: "choice" , dataChooserLabel: "text" } );
-        result.push( { key:"concept" , title : "Concept", dataIndex: "concept", dataChooser: "select", dataChooserType: "concept" , dataChooserLabel: "name" } );
-        result.push( { key:"score" , title : "Score", dataIndex: "number" , dataChooser: "number"} );
-        result.push( { key:"explanation" , title : "Explanation", dataIndex: "text" , dataChooser: "textmultiline"} );
+      case "matchingscore" :
+        result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "choice" , "Choice", "select", "choice", "text") );
+        result.push( this.getColumn(objectType, "concept" , "Concept", "select", "concept", "name") );
+        result.push( this.getColumn(objectType, "score" , "Score", "number") );
+        result.push( this.getColumn(objectType, "explanation" , "Explanation", "textmultiline") );     
         break;
     default:
         break;

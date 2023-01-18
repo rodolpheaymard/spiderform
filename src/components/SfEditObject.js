@@ -69,7 +69,7 @@ class SfEditObject extends SfComponent {
         objectsList.forEach(  c => { 
           let cid = c.id;
 
-          console.log( " c[" + coldef.dataChooserLabel + "] = " + c[coldef.dataChooserLabel] );
+          // console.log( " c[" + coldef.dataChooserLabel + "] = " + c[coldef.dataChooserLabel] );
 
           let lbl = c[coldef.dataChooserLabel];
           if (lbl === undefined || lbl === null)
@@ -99,24 +99,23 @@ class SfEditObject extends SfComponent {
       {
         case "none" :
           break;
-
         case "text" :
           return <Input placeholder={placeholdertext} key={key} value={value} 
                                     onChange={(e)=>{this.handleChangeInput(key,e)}}/>;
-
+        case "password" :
+          return <Input placeholder={placeholdertext} key={key} value={value} 
+                                    onChange={(e)=>{this.handleChangeInput(key,e)}}/>;
         case "textmultiline" :
           return <TextArea rows={4} placeholder={placeholdertext} key={key} value={value} 
-                                    onChange={(e)=>{this.handleChangeInput(key,e)}}/>;
-     
+                                    onChange={(e)=>{this.handleChangeInput(key,e)}}/>;     
         case "number" :
           return <InputNumber placeholder={placeholdertext} key={key} value={value} 
                                    onChange={(e)=>{this.handleChangeSelect(key,e)}}/>;
         case "select" :
           return <Select value={value}  style={{ width: '100%' }} 
                                   onChange={(e)=>{this.handleChangeSelect(key,e)}} >
-            {this.getOptionsListType(coldef)}           
-          </Select>;
-
+                    {this.getOptionsListType(coldef)}           
+                 </Select>;
         case "imageurl" :
           return <Input placeholder={placeholdertext} key={key} value={value}
                                  onChange={(e)=>{this.handleChangeInput(key,e)}} />;
