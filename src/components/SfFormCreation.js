@@ -1,5 +1,5 @@
 import React from "react";
-import { Select } from 'antd';
+import { Select, Space } from 'antd';
 import SfComponent from "./SfComponent";
 import SfListOfObjects from "./SfListOfObjects";
 
@@ -15,34 +15,45 @@ class SfFormCreation extends SfComponent {
       super(props);
       this.world = props.world;
 
-      this.state = { currObjType : "form" };
+      this.state = {
+        currObjType : "",
+        statusMessage : "loading data"  
+      };
 
       this.onDataLoaded= this.onDataLoaded.bind(this);
       this.onErrorDataLoaded= this.onErrorDataLoaded.bind(this);
       this.handleChooseType= this.handleChooseType.bind(this);          
     }
 
-    
     componentDidMount()
-    {
-        const context = this.context;
-        this.setState({session : context.session});   
-
+    { 
         this.world.loadData(this.onDataLoaded, this.onErrorDataLoaded)
     }
 
-
     onErrorDataLoaded(response)
     {
+      this.setState({ statusMessage : "error loading data"});
     }    
 
     onDataLoaded(response)
-    {       
+    {      
+      if (this.context.session != null)
+      {
+        this.setState({ 
+          statusMessage : "data loaded",
+          currObjType : this.context.session.chosenObjectType });
+      }      
     }
 
     handleChooseType(chosenValue) 
     {
-      //console.log("handleChooseType " + chosenValue );
+      if (this.context.session != null)
+      {
+        let newsession = this.context.session;
+        newsession.chosenObjectType = chosenValue;
+        this.context.setSession(newsession);
+      }
+       
       this.setState({ currObjType : chosenValue });  
     }
 
@@ -52,11 +63,14 @@ class SfFormCreation extends SfComponent {
       return ( <>
                    <div className="sfPageTitle"> Administration Back-Office </div>
 
-                   <Select   style={{ width: 120 }}  onChange={this.handleChooseType}
-                             defaultValue={this.state.currObjType}  
-                             options={this.world.getTypesList()} />
-                   <SfListOfObjects world={this.world} objectType={this.state.currObjType} />
-                           
+                  <Space size="large">
+                    <Select   style={{ width: 120 }}  onChange={this.handleChooseType}
+                              defaultValue={this.state.currObjType}  
+                              value={this.state.currObjType}  
+                              options={this.world.getTypesList()} />
+                    info : {this.state.statusMessage}                    
+                  </Space>
+                  <SfListOfObjects world={this.world} objectType={this.state.currObjType} />
                 </>              
          );
 

@@ -4,6 +4,7 @@ export default class MdlSession {
     {
       this.errorMessage = "";
       this.user = null;
+      this.chosenObjectType = "form";
     }
 
 }

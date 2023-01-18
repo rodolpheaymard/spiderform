@@ -52,10 +52,9 @@ class SfLogin extends SfComponent {
         {
           var newSession = new MdlSession();
           newSession.user = response.user;
-          this.setState({ session : newSession });
 
-          const context = this.context;
-          context.setSession(newSession);
+          this.setState({ session : newSession });
+          this.context.setSession(newSession);
           
           this.props.rerender();
         }
@@ -72,8 +71,6 @@ class SfLogin extends SfComponent {
     {
       this.setState({ errorMessage : "unknown error while login" });          
     }
-
-   
    
     renderErrorMessage() 
     {
