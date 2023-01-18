@@ -13,7 +13,7 @@ class SfForm extends SfComponent {
     {
 
       return ( <>
-              <div className="SfForm">
+              <div className="sfForm">
                 {this.form.name}
               </div>
               </>  );

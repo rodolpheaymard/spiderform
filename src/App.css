@@ -1,4 +1,4 @@
-.SfFormPage {
+.sfFormPage {
   font-family: sans-serif;
   display: flex;
   align-items: center;
@@ -31,13 +31,13 @@ input[type="submit"]:hover {
   background: #08a3a8;
 }
 
-.SfButtonContainer{
+.sfButtonContainer{
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.SfLogin {
+.sfLogin {
   background-color: white;
   padding: 2rem;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -50,7 +50,7 @@ input[type="submit"]:hover {
   width: 100%;
 }
 
-.SfLoginForm {
+.sfLoginForm {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -60,7 +60,7 @@ input[type="submit"]:hover {
   width: 100%;
 }
 
-.SfLoginHeader {
+.sfLoginHeader {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -76,58 +76,25 @@ input[type="submit"]:hover {
   margin: 5px;
 }
 
-.SfQuestion {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-	justify-content: space-around;
-	align-items: flex-start;
-	align-content: flex-start;
-  width: 100%;
-}
-
-.SfQuestionInfo {
-  margin:10px 0px 0px 20px;
-}
-
-.SfQuestionChoices {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-	justify-content: space-around;
-	align-items: flex-start;
-	align-content: flex-start;
-  width: 100%;
- }
-
-.SfQuestionChoice {
-  margin:5px 0px 0px 50px;
-}
-
-.SfFormList {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-	justify-content: space-around;
-	align-items: flex-start;
-	align-content: flex-start;
-}
-
-.sfAdminCard .ant-card-head  {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-	justify-content: space-around;
-	align-items: flex-start;
-	align-content: flex-start;
-  width: 1500px;
-  background-color: #0b044b;
-  color: white;
- }
-
 
 .sfPageTitle {
-  color: rgb(7, 105, 25);
+  color: rgb(216, 115, 0);
   font-size: x-large;
   padding: 10px 10px 10px 10px;
+ }
+
+ .sfMessage {
+  color: rgb(80, 80, 80);
+  font-size: small;
+  padding: 5px 5px 5px 5px;
+ }
+
+.sfAdminCard .ant-card-head-wrapper  {
+  display: flex;
+  flex-direction: row;
+ 	align-items: center;
+  border-radius: 10px 10px 0px 0px;
+  padding: 5px 15px 5px 15px;
+  background-color: #0b044b;
+  color: white;  
  }

@@ -67,7 +67,7 @@ class SfFormCreation extends SfComponent {
                               defaultValue={this.state.currObjType}  
                               value={this.state.currObjType}  
                               options={this.world.getTypesList()} />
-                    {this.state.statusMessage}                    
+                    <div className="sfMessage">{this.state.statusMessage}</div>                
                   </Space>
 
                   <SfListOfObjects world={this.world} objectType={this.state.currObjType} />

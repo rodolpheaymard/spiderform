@@ -176,14 +176,15 @@ class SfListOfObjects extends SfComponent {
                               )});
 
       return ( <>      
-               <Card title={this.state.objectType }  className="sfAdminCard">
+               <Card title={this.state.objectType}  className="sfAdminCard"
+                     extra={<Button onClick={this.handleAdd} type="primary" className="sfBtnAdd" > Add a {this.state.objectType} </Button>}>
                
-               <Table dataSource={this.state.objects} 
+               
+                <Table dataSource={this.state.objects} 
                       columns={globalColumns} 
                       rowKey={ record => record.id} 
                       size="small" />              
                                         
-               <Button onClick={this.handleAdd} type="primary" className="sfBtnAdd" > Add a {this.state.objectType} </Button>
                
                
                <Modal open={this.state.editing} title="Edit" onOk={this.handleEditOk} onCancel={this.handleEditCancel}

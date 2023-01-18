@@ -84,13 +84,13 @@ class SfLogin extends SfComponent {
     render()
     {
       const renderFormLogguedIn = (  <>
-        <form className="SfLoginHeader">
+        <form className="sfLoginHeader">
             <div>
               Hello {this.state.session !== null 
                      && this.state.session.user.username !== null ?
                             this.state.session.user.username : "null"}, you are logged in
             </div>      
-            <div className="SfButtonContainer">
+            <div className="sfButtonContainer">
               <input type="submit" value="logout" onClick={this.handleLogout}/>         
             </div>
          </form>             
@@ -98,10 +98,10 @@ class SfLogin extends SfComponent {
       );
 
       const renderForm = ( <>
-          <form className="SfLoginForm">
+          <form className="sfLoginForm">
              <input type="text" name="uname" required placeholder='name...' />              
              <input type="password" name="pass" required placeholder='password...'/>   
-              <div className="SfButtonContainer">
+              <div className="sfButtonContainer">
                 <input type="submit" value="login" onClick={this.handleLogin}  />
                 <div>{this.renderErrorMessage()}</div>
               </div>
@@ -110,7 +110,7 @@ class SfLogin extends SfComponent {
       );
 
       return ( <>
-              <div className="SfLogin">
+              <div className="sfLogin">
                 {this.state.session != null ? renderFormLogguedIn :  renderForm}
               </div>
               </>  );
