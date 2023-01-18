@@ -176,6 +176,19 @@ class MdlWorld
   sortColumn( a, b , col) {
     let vala = a[col];
     let valb = b[col];
+   if (vala === null || vala === undefined)
+    {
+      if ( valb === null || valb === undefined)
+      {
+        return 0;
+      }
+      return  -1;
+    }
+    if ( valb === null || valb === undefined)
+    {
+      return 1;
+    }
+
     return (isNaN(vala) && isNaN(valb) ? (vala || '').localeCompare(valb || '') : vala - valb);
   }
 
@@ -200,11 +213,20 @@ class MdlWorld
   }
 
   applyFilter(value,record, colKey) 
-  {
-    if (record[colKey].indexOf(value) === 0)
-      return true;
+  {    
+    if (record[colKey] === null || record[colKey] === undefined)
+    {
+      return false;
+    }
 
-    return false;
+    if (isNaN(record[colKey]))
+    {
+      return record[colKey].indexOf(value.toString()) === 0 ;
+    }
+    else
+    {
+      return  record[colKey] === value;
+    }
   }
 
   getColumn( objectType, colKey , colTitle, colDataChooser , colDataChooserType = null, colDataChooserLabel = null, colDataCalculated = null)

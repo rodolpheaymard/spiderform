@@ -178,8 +178,11 @@ class SfListOfObjects extends SfComponent {
       return ( <>      
                <Card title={this.state.objectType }  className="sfAdminCard">
                
-               <Table dataSource={this.state.objects} columns={globalColumns} pagination={false} rowKey={ record => record.id} />              
-               
+               <Table dataSource={this.state.objects} 
+                      columns={globalColumns} 
+                      rowKey={ record => record.id} 
+                      size="small" />              
+                                        
                <Button onClick={this.handleAdd} type="primary" className="sfBtnAdd" > Add a {this.state.objectType} </Button>
                
                
