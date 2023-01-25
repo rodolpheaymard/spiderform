@@ -13,7 +13,6 @@ class MdlUser {
   getAllUsers()
   {
     let result = [];
-
      // userName: "admin",
      // password: "admin",
      // isAdmin: true

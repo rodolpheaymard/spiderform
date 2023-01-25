@@ -23,10 +23,12 @@ class SfEditObject extends SfComponent {
     
       this.handleChangeInput = this.handleChangeInput.bind(this);
       this.handleChangeSelect = this.handleChangeSelect.bind(this);
+      this.getEditor = this.getEditor.bind(this);      
     }
    
 
-     componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps) 
+    {
       if (this.props.editObject !== prevProps.editObject ) 
       {
         this.editObject= this.props.editObject;   
@@ -38,21 +40,17 @@ class SfEditObject extends SfComponent {
    
     handleChangeInput(key,e) 
     {
-        //console.log( " handleChange key=" + key + " value=" + e.target.value);
-        this.state.curObject[key] = e.target.value;
-
-        this.setState( { curObject : this.state.curObject } );
+      //console.log( " handleChange key=" + key + " value=" + e.target.value);
+      this.state.curObject[key] = e.target.value;
+      this.setState( { curObject : this.state.curObject } );
     }
 
     handleChangeSelect(key,val) 
     {
-        //console.log( " handleChange key=" + key + " value=" + val);
-        this.state.curObject[key] = val;
-        this.setState( { curObject : this.state.curObject } );
-    
+      //console.log( " handleChange key=" + key + " value=" + val);
+      this.state.curObject[key] = val;
+      this.setState( { curObject : this.state.curObject } );
     }
-
-  
     
     getOptionsListType(coldef)
     {  
@@ -98,6 +96,13 @@ class SfEditObject extends SfComponent {
       switch(coldef.dataChooser)
       {
         case "none" :
+          if (value === true)
+          {
+            value = "true";
+          } else if (value === false)
+          {
+            value = "false";
+          }
           break;
         case "text" :
           return <Input placeholder={placeholdertext} key={key} value={value} 
@@ -123,6 +128,27 @@ class SfEditObject extends SfComponent {
           break;
       }     
 
+      if (coldef.dataCalculated !== undefined)
+      {
+        var obj = this.state.curObject;
+        var oworld = this.world;
+        const pathattr = coldef.dataCalculated.split('.');
+        for( var i= 0; i < pathattr.length; i++)
+        {
+          let attr = pathattr[i];
+          if (obj[attr] !== undefined && obj[attr] !== null)
+          {
+            obj = obj[attr];
+            let fullobj = oworld.getObjectById(obj);
+            if (fullobj !== null)
+            {
+              obj = fullobj;
+            }
+          }
+        }
+
+        value = String(obj);
+      }
       return <>{value}</>;
     }
 

@@ -72,10 +72,19 @@ class MdlWorld
     return result;
   }
 
+  getObjectById(objid)
+  {
+    if (this.datamap.has(objid) === true)
+    {
+      return this.datamap.get(objid);
+    }
+    return null;
+  }
+
   loadData(callback, errorcallback) 
   {
     let qryurl = this.server_url + "all/"  ;
-    let filter = {types : ["concept","form","question","sequence","choice","matchingscore"]};
+    let filter = {types : this.getTypesList().map(c => c.value)};
     axios.post(qryurl, filter , null)    
          .then( res =>  {
             this.cleanDataMap();
@@ -164,13 +173,32 @@ class MdlWorld
     });
   } 
 
-  getTypesList() {
-    return [{ value: "concept", label: "Concepts" },
-            { value: "form", label: "Forms" },
-            { value: "sequence", label: "Sequences" },
-            { value: "question", label: "Questions" },
-            { value: "choice", label: "Choices" },
-            { value: "matchingscore", label: "Scores" }];
+  loadUserData(user, callback, errorcallback) 
+  {
+    let qryurl = this.server_url + "filter/"  ;
+    let filter = { filterprop : "user" , filterval : user.id, types : this.getUserDataList()};
+    axios.post(qryurl, filter , null)    
+         .then( res =>  {              
+              let userdataobjects = this.buildFormsMap(res.data.objects) ;
+              if (callback !== null)
+              {
+                callback(userdataobjects);  
+              } 
+            }, error => {
+              console.log(error);
+              if (errorcallback !== null)
+              {
+                errorcallback(error); 
+              }
+            });    
+  }
+
+  getOptionsList(objtype, propid, proplabel)
+  {
+    let lstobj = this.getObjectsByType(objtype);
+    let result = [];
+    lstobj.forEach( o => result.push({ value : o[propid], label : o[proplabel]}) );
+    return result;
   }
 
   sortColumn( a, b , col) {
@@ -208,7 +236,7 @@ class MdlWorld
     mapResult.forEach( (value,key) => keysArray.push(key) );
     keysArray = keysArray.sort();
     let result = [];
-    keysArray.forEach( a => result.push({text : a, value : a}));    
+    keysArray.forEach( a => result.push({text : String(a), value : a}));    
     return result;  
   }
 
@@ -232,6 +260,7 @@ class MdlWorld
   getColumn( objectType, colKey , colTitle, colDataChooser , colDataChooserType = null, colDataChooserLabel = null, colDataCalculated = null)
   {
     let result =  { key : colKey , 
+                    render : (text) => String(text),
                     title : colTitle,
                     dataIndex: colKey, 
                     dataChooser: colDataChooser,
@@ -252,6 +281,55 @@ class MdlWorld
     return result;
   }
 
+  getUserDataList() {
+    return ["user_form", 
+            "user_answer", 
+            "user_choice"];
+  }
+
+  buildFormsMap(objects)
+  {
+    let result = new Map();
+
+    // scan user_form
+    objects.forEach(obj => { 
+      if(obj.type === "user_form" ) 
+      { 
+        obj.answers = new Map();
+        result.set(obj.form, obj); 
+      }
+    });
+
+    // scan user_answer
+    objects.forEach(obj => { 
+      if(obj.type === "user_answer" ) 
+      {
+        obj.choices = [];
+        result[obj.form].answers.set(obj.question , obj);
+      } 
+    });
+
+    // scan user_choice
+    objects.forEach(obj => { 
+      if(obj.type === "user_choice" ) 
+      {
+        result[obj.form].answers[obj.question].choices.push(obj);
+      } 
+    });
+
+    return result;
+  }
+  
+  getTypesList() {
+    return [{ value: "user",          label: "Users" },
+            { value: "concept",       label: "Concepts" },
+            { value: "form",          label: "Forms" },
+            { value: "sequence",      label: "Sequences" },
+            { value: "question",      label: "Questions" },
+            { value: "choice",        label: "Choices" },
+            { value: "matchingscore", label: "Scores" }];
+  }
+
   columnsForType(objectType)
   {
     var result = [];
@@ -259,8 +337,9 @@ class MdlWorld
     {
       case "user" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "username" , "Login", "text") );
-        result.push( this.getColumn(objectType, "password" , "Password", "password") );
+        result.push( this.getColumn(objectType, "username" , "Login", "none") );
+        result.push( this.getColumn(objectType, "password" , "Password", "none") );
+        result.push( this.getColumn(objectType, "isadmin" , "Admin ?", "none") );
         break;
       case "concept" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
@@ -279,7 +358,7 @@ class MdlWorld
        break;
       case "question" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "form" , "Form", "none" , null , null, "sequence.form") );
+        result.push( this.getColumn(objectType, "form" , "Form", "none" , null , null, "sequence.form.name") );
         result.push( this.getColumn(objectType, "sequence" , "Sequence", "select", "sequence", "name") );
         result.push( this.getColumn(objectType, "text" , "Text", "textmultiline") );
         result.push( this.getColumn(objectType, "multichoice" , "Multi", "select", "yes_or_no") );
@@ -299,33 +378,10 @@ class MdlWorld
         break;
     default:
         break;
-    }
-
-    
+    }    
     return result;
   }
-
 }
 
 export default MdlWorld;
-
-
-
-//const columns: ColumnsType<DataType> = [
-//  {
-//    title: 'Name',
-//    dataIndex: 'name',
-//    key: 'name',
-//    filters: [
-//      { text: 'Joe', value: 'Joe' },
-//      { text: 'Jim', value: 'Jim' },
-//    ],
-//    filteredValue: filteredInfo.name || null,
-//    onFilter: (value: string, record) => record.name.includes(value),
-//    sorter: (a, b) => a.name.length - b.name.length,
-//    sortOrder: sortedInfo.columnKey === 'name' ? sortedInfo.order : null,
-//    ellipsis: true,
-//  },
-  
-
 

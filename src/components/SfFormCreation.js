@@ -2,8 +2,6 @@ import React from "react";
 import { Select, Space } from 'antd';
 import SfComponent from "./SfComponent";
 import SfListOfObjects from "./SfListOfObjects";
-
-
 import { GlobalContext } from "./GlobalContext";
 
 
@@ -27,7 +25,7 @@ class SfFormCreation extends SfComponent {
 
     componentDidMount()
     { 
-        this.world.loadData(this.onDataLoaded, this.onErrorDataLoaded)
+      this.world.loadData(this.onDataLoaded, this.onErrorDataLoaded);
     }
 
     onErrorDataLoaded(response)
@@ -72,9 +70,7 @@ class SfFormCreation extends SfComponent {
 
                   <SfListOfObjects world={this.world} objectType={this.state.currObjType} />
                 </>              
-         );
-
-      
+         );     
     }
 }
 
