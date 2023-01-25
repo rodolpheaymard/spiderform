@@ -62,8 +62,8 @@ class SfFormCreation extends SfComponent {
       //console.log("render  form creation " + this.state.currObjType );
       return ( <>                 
                   <Space size="large" >
-                  <div className="sfPageTitle"> Administration Back-Office </div>
-                   <Select   style={{ width: 120 }}  onChange={this.handleChooseType}
+                    <div className="sfPageTitle"> Administration Back-Office </div>
+                    <Select   style={{ width: 120 }}  onChange={this.handleChooseType}
                               defaultValue={this.state.currObjType}  
                               value={this.state.currObjType}  
                               options={this.world.getTypesList()} />
