@@ -98,3 +98,10 @@ input[type="submit"]:hover {
   background-color: #0b044b;
   color: white;  
  }
+
+ .sfWizardStart {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 15px 5px 15px;
+  width: 75%;
+}

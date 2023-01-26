@@ -65,10 +65,30 @@ class MdlWorld
     }
   }
 
+  backupObjects()
+  {
+    return "{ allobjects }";
+  }
+
   getObjectsByType(objtype)
   {
     let result = [];
     this.datamap.forEach( (obj, id, map) => { if (obj.type === objtype) { result.push(obj);} } );
+    return result;
+  }
+
+  selectObjects(objtype, filterprop, filterpropvalue)
+  {
+    let result = [];
+    this.datamap.forEach( (obj, id, map) => 
+                          { 
+                            if (obj.type === objtype
+                                && obj[filterprop] === filterpropvalue )
+                            { 
+                              result.push(obj);
+                            } 
+                          } 
+                          );
     return result;
   }
 
@@ -119,8 +139,8 @@ class MdlWorld
   addObject( objStarter , callback, errorcallback)
   {
     let qryurl = this.server_url + "add/" + objStarter.type  ;
-    let newobj = {id : objStarter.id , type : objStarter.type , deleted : false };
-    axios.post(qryurl, newobj , null)
+    objStarter.deleted = false;
+    axios.post(qryurl, objStarter , null)
     .then ( res => {
       this.updateDataMap(res.data);
 
@@ -260,7 +280,7 @@ class MdlWorld
   getColumn( objectType, colKey , colTitle, colDataChooser , colDataChooserType = null, colDataChooserLabel = null, colDataCalculated = null)
   {
     let result =  { key : colKey , 
-                    render : (text) => String(text),
+                    render : (text) => (text !== undefined ? String(text) : ""),
                     title : colTitle,
                     dataIndex: colKey, 
                     dataChooser: colDataChooser,
@@ -283,7 +303,6 @@ class MdlWorld
 
   getUserDataList() {
     return ["user_form", 
-            "user_answer", 
             "user_choice"];
   }
 

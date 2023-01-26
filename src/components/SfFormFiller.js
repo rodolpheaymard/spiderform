@@ -27,7 +27,7 @@ class SfFormFiller extends SfComponent {
   {
     return ( <>                 
                 <Space size="large" >
-                  <div className="sfPageTitle"> Form </div>          
+                  <div className="sfPageTitle"> Welcome to the Wonderful Form Filler </div>          
                 </Space>
                 <Divider/>
                 <SfWizard world={this.world}  />

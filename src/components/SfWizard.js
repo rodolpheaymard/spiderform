@@ -1,7 +1,8 @@
 import React from "react";
 import SfComponent from "./SfComponent";
+import SfWizardStep from "./SfWizardStep";
 import { GlobalContext } from "./GlobalContext";
-import { Button , Divider, Select } from "antd"; 
+import { Button , Avatar, List } from "antd"; 
 
 
 class SfWizard extends SfComponent {
@@ -12,14 +13,13 @@ class SfWizard extends SfComponent {
     this.world = props.world;    
     
     this.state = {  user_id : null,
-      user_data : null ,
-      user_form : "",
-      user_form_status : "" ,
-      user_answer : null,
+                    user_data : null ,
+                    user_form : "",
+                    user_form_status : "" 
     }; 
 
     this.handleNext = this.handleNext.bind(this);
-    this.handleChooseForm = this.handleChooseForm.bind(this);    
+    this.handleStartForm = this.handleStartForm.bind(this);    
     this.onObjectAdded = this.onObjectAdded.bind(this);
     this.onErrorObjectAdded = this.onErrorObjectAdded.bind(this);     
     this.onDataLoaded = this.onDataLoaded.bind(this);
@@ -30,6 +30,7 @@ class SfWizard extends SfComponent {
   componentDidMount() 
   {
     this.loadUserData();
+    this.setState({ user_form :  this.getSessionUserForm() });  
   }
 
   componentDidUpdate(prevProps) 
@@ -83,7 +84,6 @@ class SfWizard extends SfComponent {
   handleNext(event) 
   {
     event.preventDefault();
-    this.setState({ user_form_status : "started" });                      
   }
 
   createUserForm(formId, userId)
@@ -112,61 +112,109 @@ class SfWizard extends SfComponent {
     return null;
   }
 
-  handleChooseForm(chosenForm) 
+  getNextQuestion()
   {
-    if (this.state.user_form !== chosenForm)
+    let result = null;    
+    if (this.state.user_data === null || this.state.user_data === undefined)
+    {
+      //this.loadUserData();
+      return;
+    }
+
+    if (this.state.user_form !== null && this.state.user_form !== undefined )
+    {        
+      let allsequences = this.world.selectObjects("sequence", "form", this.state.user_form );
+      let nbseq = allsequences.length;
+      for(let ii=0; ii < nbseq && result===null; ii ++)
+      {
+        let allquestions = this.world.selectObjects("question", "sequence", allsequences[ii].id );
+        let nbquest = allquestions.length;
+        for(let jj=0; jj < nbquest && result===null ; jj ++)
+        {
+          let allchoices = this.world.selectObjects("choice", "question", allquestions[jj].id );
+          let nbanswers = 0;
+          this.state.user_data.forEach( (value, key, map) => { if (value.type === "user_choice" 
+                                                                    && allchoices.includes(value["choice"])) 
+                                                                    {
+                                                                      nbanswers ++;
+                                                                    } 
+                                                              } );
+          if (nbanswers === 0)
+          {
+            result = allquestions[jj];
+          }
+        }
+      }     
+    }
+    
+
+    return result;
+  }
+
+  handleStartForm(chosenForm) 
+  {
+    if (this.state.user_form !== chosenForm.id)
     {
       this.startForm(chosenForm);
+      this.setState({ user_form_status : "started" });          
     }
   }
 
   startForm(chosenForm)
   {
-    if (this.context.session != null)
+    if (this.context.session !== null && this.context.session !== undefined)
     {
       let newsession = this.context.session;
-      newsession.user_form = chosenForm;
+      newsession.user_form = chosenForm.id;
       this.context.setSession(newsession);
     }
 
     if (this.state.user_data !== null)
     {
-      if (this.state.user_data.has(chosenForm) === false)
+      if (this.state.user_data.has(chosenForm.id) === false)
       {
-        let newform =  this.createUserForm(chosenForm, this.state.user_id);
+        let newform =  this.createUserForm(chosenForm.id, this.state.user_id);
         let newuserdata = this.state.user_data;
-        newuserdata.set(chosenForm,newform);
+        newuserdata.set(newform.form,newform);
         this.setState({ user_data : newuserdata });
       }
     }
-    this.setState({ user_form : chosenForm });  
+    this.setState({ user_form : chosenForm.id });  
   }
   
+
   render()
   { 
     let block = null
     switch (this.state.user_form_status) {
       case ("notstarted") :
         block = <>
-                <div>Welcome to the Wonderful Form Filler</div> 
-                <div>Please, select a form</div> 
-                <Select style={{ width: 120 }}  onChange={this.handleChooseForm}
-                              value={this.state.user_form}  
-                              options={this.world.getOptionsList("form", "id", "name")} />
+                <div className="sfWizardStart">                  
+                  <div>Please, select a form to start or continue filling it</div> 
+                    <List itemLayout="horizontal"
+                          dataSource={this.world.getObjectsByType("form")}
+                          renderItem={(item) => (
+                          <List.Item>
+                            <List.Item.Meta   avatar={<Avatar src="/formulaire-250x187.png" />}   title={item.name}  description=""/>
+                            <Button onClick={()=> this.handleStartForm(item)}  type="primary" className="sfBtnEdit" key={item.id + "_start"}>Start</Button>
+                          </List.Item>
+                        )}
+                      />
+                  </div>
+
               </>;
       break;
       case ("started") :
         block = <>
-              <div>Form : ...</div> 
-              <div>Sequence : ...</div>               
-              <div>Question : ...</div> 
-              <div>Choose one or many answers   : ...</div> 
+              <SfWizardStep world={this.world} question={this.getNextQuestion()}/>
+              
+              <Button onClick={this.handleNext} type="primary" className="sfBtnWizardNext" > Next </Button>        
               </>;
       break;
       case ("finished") :
         block = <>
-              <div>Thank you for havin filled this form.</div> 
-              <div>Your results are the following :</div> 
+              <div>Thank you for having filled this form.</div> 
+              <div>Your results are the following : </div> 
               </>;
       break;
      default:
@@ -176,8 +224,6 @@ class SfWizard extends SfComponent {
 
     return ( <>  
               {block}    
-              <Divider/>
-              <Button onClick={this.handleNext} type="primary" className="sfBtnWizardNext" > Next </Button>
               </>              
         );
   }

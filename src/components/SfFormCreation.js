@@ -3,7 +3,7 @@ import { Select, Space } from 'antd';
 import SfComponent from "./SfComponent";
 import SfListOfObjects from "./SfListOfObjects";
 import { GlobalContext } from "./GlobalContext";
-
+import DownloadLink from "react-download-link";
 
 
 class SfFormCreation extends SfComponent {
@@ -21,6 +21,7 @@ class SfFormCreation extends SfComponent {
       this.onDataLoaded= this.onDataLoaded.bind(this);
       this.onErrorDataLoaded= this.onErrorDataLoaded.bind(this);
       this.handleChooseType= this.handleChooseType.bind(this);          
+      this.exportFullData= this.exportFullData.bind(this);          
     }
 
     componentDidMount()
@@ -55,6 +56,11 @@ class SfFormCreation extends SfComponent {
       this.setState({ currObjType : chosenValue });  
     }
 
+    exportFullData()
+    {
+      return  this.world.backupObjects();
+    }
+
     render()
     {
       //console.log("render  form creation " + this.state.currObjType );
@@ -65,8 +71,13 @@ class SfFormCreation extends SfComponent {
                               defaultValue={this.state.currObjType}  
                               value={this.state.currObjType}  
                               options={this.world.getTypesList()} />
-                    <div className="sfMessage">{this.state.statusMessage}</div>                
-                  </Space>
+                    <div className="sfMessage">{this.state.statusMessage}</div>  
+                    <DownloadLink    label="Download full export"
+                                     filename="myspiderdata.txt"
+                                     exportFile={() => this.exportFullData()}
+                                    />
+                    
+                    </Space>
 
                   <SfListOfObjects world={this.world} objectType={this.state.currObjType} />
                 </>              

@@ -176,21 +176,19 @@ class SfListOfObjects extends SfComponent {
     return ( <>      
               <Card title={this.state.objectType}  className="sfAdminCard"
                     extra={<Button onClick={this.handleAdd} type="primary" className="sfBtnAdd" > Add a {this.state.objectType} </Button>}>
-              
-              
+                            
               <Table dataSource={this.state.objects} 
                     columns={globalColumns} 
-                    rowKey={ record => record.id} 
+                    rowKey={record => record.id} 
                     size="small" />              
-                                      
-              
               
               <Modal open={this.state.editing} title="Edit" onOk={this.handleEditOk} onCancel={this.handleEditCancel}
                     footer={[ <Button key="cancel" onClick={this.handleEditCancel}>Cancel</Button>,
                               <Button key="save" type="primary" onClick={this.handleEditOk}>Save</Button>
-                            ]}>
+                            ]}>              
                 <SfEditObject world={this.world} editObject={this.state.curObject}/>
-              </Modal>               
+              </Modal>         
+
               </Card>             
               </>              
           );
