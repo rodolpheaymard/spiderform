@@ -43,12 +43,14 @@ class SfWizard extends SfComponent {
         && this.context.session !== null  && this.context.session !== undefined
         && this.context.session.user !== null  && this.context.session.user !== undefined)
     {
-      let current_form = this.context.session.user_form;
       let current_form_status = "notstarted";
+    
+      let current_form = this.context.session.user_form;
       if (current_form !== null && current_form !== undefined && current_form !== "")
       {
         current_form_status = "started";
       }
+
       this.setState( {user_id : this.context.session.user.id ,
                       user_data : null ,
                       user_form : current_form,
@@ -88,7 +90,7 @@ class SfWizard extends SfComponent {
 
   createUserForm(formId, userId)
   {
-    let newform = { id : "", type : "user_form", form : formId, user : userId } ;
+    let newform = { id : "", type : "user_form", form : formId, user : userId , answers : new Map()} ;
     this.world.addObject( newform , this.onObjectAdded, this.onErrorObjectAdded);
     return newform;
   }
@@ -99,6 +101,16 @@ class SfWizard extends SfComponent {
 
   onObjectAdded(newobj)
   { 
+    if (newobj !== null && newobj !== undefined
+        && newobj.type === "user_form")
+    {
+      if (this.state.user_data !== null && this.state.user_data !== undefined)
+      {
+        let newuserdata = this.state.user_data;
+        newuserdata.get(newobj.form).id = newobj.id;
+        this.setState({ user_data : newuserdata });
+      }
+    }
   }  
 
   getSessionUserForm()
@@ -117,8 +129,7 @@ class SfWizard extends SfComponent {
     let result = null;    
     if (this.state.user_data === null || this.state.user_data === undefined)
     {
-      //this.loadUserData();
-      return;
+      return null;
     }
 
     if (this.state.user_form !== null && this.state.user_form !== undefined )
@@ -129,25 +140,27 @@ class SfWizard extends SfComponent {
       {
         let allquestions = this.world.selectObjects("question", "sequence", allsequences[ii].id );
         let nbquest = allquestions.length;
-        for(let jj=0; jj < nbquest && result===null ; jj ++)
-        {
-          let allchoices = this.world.selectObjects("choice", "question", allquestions[jj].id );
+        for(let jj=0;jj < nbquest && result===null; jj++)
+        { 
           let nbanswers = 0;
-          this.state.user_data.forEach( (value, key, map) => { if (value.type === "user_choice" 
-                                                                    && allchoices.includes(value["choice"])) 
-                                                                    {
-                                                                      nbanswers ++;
-                                                                    } 
-                                                              } );
-          if (nbanswers === 0)
+          let userForm = this.state.user_data.get(this.state.user_form);
+          if (userForm !== null && userForm !== undefined
+              && userForm.answers !== null && userForm.answers !== undefined)
           {
-            result = allquestions[jj];
+            userForm.answers.forEach( (value, key, map) => {
+              if (value.question === allquestions[jj].id)
+              {
+                nbanswers ++;
+              } 
+            } );
+            if (nbanswers === 0)
+            {
+              result = allquestions[jj];
+            }           
           }
-        }
-      }     
-    }
-    
-
+        }       
+      }
+    }     
     return result;
   }
 
@@ -207,7 +220,7 @@ class SfWizard extends SfComponent {
       case ("started") :
         block = <>
               <SfWizardStep world={this.world} question={this.getNextQuestion()}/>
-              
+
               <Button onClick={this.handleNext} type="primary" className="sfBtnWizardNext" > Next </Button>        
               </>;
       break;

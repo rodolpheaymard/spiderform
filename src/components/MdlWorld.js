@@ -303,7 +303,7 @@ class MdlWorld
 
   getUserDataList() {
     return ["user_form", 
-            "user_choice"];
+            "user_answer"];
   }
 
   buildFormsMap(objects)
@@ -323,16 +323,7 @@ class MdlWorld
     objects.forEach(obj => { 
       if(obj.type === "user_answer" ) 
       {
-        obj.choices = [];
-        result[obj.form].answers.set(obj.question , obj);
-      } 
-    });
-
-    // scan user_choice
-    objects.forEach(obj => { 
-      if(obj.type === "user_choice" ) 
-      {
-        result[obj.form].answers[obj.question].choices.push(obj);
+        result.get(obj.form).answers.set(obj.question , obj);
       } 
     });
 
