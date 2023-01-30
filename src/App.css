@@ -99,9 +99,38 @@ input[type="submit"]:hover {
   color: white;  
  }
 
+ .sfWizardStep .ant-card-head-wrapper  {
+  display: flex;
+  flex-direction: row;
+ 	align-items: center;
+  border-radius: 10px 10px 0px 0px;
+  padding: 5px 15px 5px 15px;
+  background-color: #0b044b;
+  color: white;  
+ }
  .sfWizardStart {
   display: flex;
   flex-direction: column;
   padding: 5px 15px 5px 15px;
+  width: 75%;
+}
+
+.sfWizardStepQuestion {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 15px 15px 15px;
+  width: 75%;
+}
+.sfWizardStepChoices {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 15px 15px 15px;
+  width: 75%;
+}
+
+.sfWizardStepValidate {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 15px 15px 15px;
   width: 75%;
 }

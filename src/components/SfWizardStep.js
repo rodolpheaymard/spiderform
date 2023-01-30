@@ -1,6 +1,6 @@
 import React from 'react';
 import SfComponent from './SfComponent';
-import { Radio , Checkbox , Space } from "antd"; 
+import { Radio , Checkbox , Space, Button, Card } from "antd"; 
 
 
 class SfWizardStep extends SfComponent {
@@ -8,13 +8,22 @@ class SfWizardStep extends SfComponent {
     constructor(props) {
       super(props);
       this.world = props.world;  
-    
-      this.state = { question :  props.question , 
-                      singlechoice : null } ;
+      this.onValidated = props.onValidated;
+      this.state = { user : props.user,
+                     form : props.form,
+                     question :  props.question , 
+                     singlechoice : null,
+                     multichoice : new Map(),
+                     user_answer : null } ;
+
       this.loadQuestionData(props.question);
 
       this.handleChoose = this.handleChoose.bind(this);    
       this.handleMultiChoose = this.handleMultiChoose.bind(this);    
+      this.handleValidate = this.handleValidate.bind(this);   
+    
+      this.onAnswerCreated = this.onAnswerCreated.bind(this);   
+      this.onErrorAnswerCreated = this.onErrorAnswerCreated.bind(this);         
     }
 
     componentDidMount() 
@@ -46,30 +55,73 @@ class SfWizardStep extends SfComponent {
     {
       event.preventDefault();
       this.setState( { singlechoice : event.target.value });
-
     }
 
-    handleMultiChoose(event) 
+    handleMultiChoose(checkedValues) 
     {
-      event.preventDefault();
-      // event.target.checked;
-      this.setState( { singlechoice : event.target.value });
-
+       let new_mchoice = new Map();
+      checkedValues.forEach( cid => new_mchoice.set(cid,true));
+  
+      this.setState( { multichoice : new_mchoice });
     }
+    
+    handleValidate(event)
+    {
+      let userAnswer = { id :'', type : 'user_answer' , deleted : false };        
+
+      userAnswer.user = this.state.user;
+      userAnswer.form = this.state.form;
+      if (this.state.question !== null)
+      {
+        userAnswer.sequence = this.state.question.sequence;
+        userAnswer.question = this.state.question.id;  
+      }
+
+      if (this.state.singlechoice !== null)
+      {
+        userAnswer.choices = [ this.state.singlechoice ];
+      }
+      else
+      {
+        userAnswer.choices = [];
+        this.state.multichoice.forEach( (value, key, map) => { if (value === true) { userAnswer.choices.push(key); } } );
+      }
+      this.world.addObject(userAnswer,this.onAnswerCreated,this.onErrorAnswerCreated);
+      this.onValidated(userAnswer);
+      this.setState({singlechoice : null , multichoice : new Map()});
+    }
+    
+    onErrorAnswerCreated(response)
+    {    
+    }    
+
+    onAnswerCreated(response)
+    {      
+    }
+
 
     render()
     {
-
       let choicesBlock = <></>;
+      let isChosen = (othis, choiceId) =>  { if (othis.state.multichoice.get(choiceId)=== true) {
+                                                  return "checked";
+                                                }
+                                              return "";
+                                            };
 
-      if (this.state.question !== null && this.state.question !== undefined)
+      if (this.world.isOk(this.state.question))
       {
         if (this.state.question.multichoice === "yes")
         {
           let othis = this;
-          choicesBlock = <>  
-             <Space direction="vertical">
-               {this.choices.map( function(c , i) { return  <Checkbox onChange={othis.handleMultiChoose} value={c.id} key={c.id}>{c.text}</Checkbox> ;})}
+          choicesBlock = <>            
+             <Space direction="vertical">             
+              <Checkbox.Group    onChange={this.handleMultiChoose} >
+               {this.choices.map( function(c , i) { 
+                            if (isChosen(othis , c.id)) { return  <Checkbox value={c.id} key={c.id} checked >{c.text}</Checkbox> ;}
+                            else { return  <Checkbox value={c.id} key={c.id}  >{c.text}</Checkbox> ;}
+                          }) }
+              </Checkbox.Group>
              </Space>
            </>;
         }
@@ -85,12 +137,24 @@ class SfWizardStep extends SfComponent {
         }               
       }
       
-      return (<>
-               <div>sequence : {this.sequence !== null && this.sequence !== undefined ? this.sequence.name : ""}</div>
-               <div>question : {this.state.question !== null && this.state.question !== undefined ? this.state.question.text : ""}</div>
-               <div>
-               {choicesBlock}
-               </div>
+      return (<>      
+               <Card title={this.sequence !== null && this.sequence !== undefined ? this.sequence.name : ""} 
+                    className="sfWizardStep">
+
+ 
+                  <Space className="sfWizardStepQuestion">
+                  {this.state.question !== null && this.state.question !== undefined ? this.state.question.text : ""}
+               
+                  </Space>
+                  <Space className="sfWizardStepChoices">
+                  {choicesBlock}
+                  </Space >
+
+
+                  <Space className="sfWizardStepValidate">
+                  <Button onClick={this.handleValidate} type="primary" className="sfBtnWizardValidate" > Validate </Button>  
+                  </Space>      
+              </Card>
               </>  );
     }
 }

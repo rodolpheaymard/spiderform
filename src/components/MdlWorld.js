@@ -38,6 +38,16 @@ class MdlWorld
               });
   }
 
+  isNull(obj)
+  {
+    return (obj === null || obj === undefined);
+  }
+  
+  isOk(obj)
+  {
+    return !this.isNull(obj);
+  }
+
   cleanDataMap()
   {
     this.datamap.clear();
@@ -314,7 +324,8 @@ class MdlWorld
     objects.forEach(obj => { 
       if(obj.type === "user_form" ) 
       { 
-        obj.answers = new Map();
+        obj.cache = {};
+        obj.cache.answers = new Map();
         result.set(obj.form, obj); 
       }
     });
@@ -323,13 +334,26 @@ class MdlWorld
     objects.forEach(obj => { 
       if(obj.type === "user_answer" ) 
       {
-        result.get(obj.form).answers.set(obj.question , obj);
+        let user_form = result.get(obj.form);
+        user_form.cache.answers.set(obj.question , obj);
       } 
     });
 
     return result;
   }
   
+  getUserAnswers(userForm)
+  {
+    if (userForm !== null && userForm !== undefined
+      && userForm.cache !== null && userForm.cache !== undefined
+      && userForm.cache.answers !== null && userForm.cache.answers !== undefined)
+      {
+        return userForm.cache.answers;
+      }
+    return new Map();  
+  }
+
+
   getTypesList() {
     return [{ value: "user",          label: "Users" },
             { value: "concept",       label: "Concepts" },
