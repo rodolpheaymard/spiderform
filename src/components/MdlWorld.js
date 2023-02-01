@@ -1,6 +1,8 @@
 import axios from 'axios';
-const dotenv = require('dotenv');
+import CryptoJS from "crypto-js";
 
+const dotenv = require('dotenv');
+const secretPass = "XkhZG47zohfaf=+YETxfW2t2W";
 
 class MdlWorld 
 {
@@ -23,11 +25,16 @@ class MdlWorld
       console.log(result.parsed);
     }
   }
+  
+  encrypt(passwd)
+  {
+    return CryptoJS.MD5(passwd + secretPass).toString().replace('/','U').replace('\\','V');
+  }
 
   login(username,passwd, callback, errorcallback) {
-    let cryptedpasswd = passwd;
-    if (cryptedpasswd === "")
-        cryptedpasswd = "none";
+
+    let cryptedpasswd = this.encrypt(passwd);
+
     let qryurl = this.server_url + "login/"+ username + "/" + cryptedpasswd  ;
     axios.get(qryurl)     
          .then( res =>  {             
