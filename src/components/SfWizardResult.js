@@ -8,7 +8,7 @@ class SfWizardResult extends SfComponent {
     constructor(props) {
       super(props);
       this.world = props.world;  
-      this.state = { data : props.data } ;
+      this.state = { data : props.data , form :props.form } ;
       }
 
     componentDidMount() 
@@ -17,9 +17,10 @@ class SfWizardResult extends SfComponent {
   
     componentDidUpdate(prevProps) 
     {
-      if (this.props.data !== prevProps.data) 
+      if (this.props.data !== prevProps.data
+           || this.props.form !== prevProps.form) 
       {
-        this.setState( {data : this.props.data } );
+        this.setState( {data : this.props.data  , form : this.props.form } );
       }
     }
     
@@ -32,12 +33,18 @@ class SfWizardResult extends SfComponent {
       let listExplanations =  [];
       this.state.data.scores.forEach(element => { listExplanations.push( <div> <Image src={selectImage(element.score)  } width="20px" heigth="18px"/>
                                                                            {element.explanation}   </div>); });
+
+      let blockExplanations = <></>;
+      let formObj = this.world.getObjectById(this.state.form);
+      if (this.world.isOk(formObj) && formObj.with_explanations === "yes" )
+      {
+          blockExplanations = <div>   Your points come from those reasons : <br/> 
+                                    <List dataSource={listExplanations} renderItem={(item) => (<List.Item>{item}</List.Item>)} /> </div>  ;
+      }
+
       return (<>      
                 <div> {this.state.data.concept.explanation} </div> 
-                <div> Your points come from thos reasons :</div>
-                <div> <List dataSource={listExplanations} renderItem={(item) => (<List.Item>{item}</List.Item>)} />
-
-                </div>
+                <div> {blockExplanations} </div>
               </> );
     }
 }

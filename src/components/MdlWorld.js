@@ -391,6 +391,7 @@ class MdlWorld
       case "form" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
         result.push( this.getColumn(objectType, "name" , "Name", "text") );
+        result.push( this.getColumn(objectType, "with_explanations" , "Explanations", "select", "yes_or_no")  );
       break;
        case "sequence" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
@@ -412,6 +413,7 @@ class MdlWorld
         break;
       case "matchingscore" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
+        result.push( this.getColumn(objectType, "question" , "Question", "none" , null , null, "choice.question.text") );
         result.push( this.getColumn(objectType, "choice" , "Choice", "select", "choice", "text") );
         result.push( this.getColumn(objectType, "concept" , "Concept", "select", "concept", "name") );
         result.push( this.getColumn(objectType, "score" , "Score", "number") );

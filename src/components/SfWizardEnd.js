@@ -84,7 +84,7 @@ class SfWizardEnd extends SfComponent {
       this.state.results.forEach((objData , conceptid) =>{ listResults.push(<Panel header={objData.concept.name + ' : ' 
                                                                                            + objData.total + ' points' } 
                                                                                    key={objData.concept.id}  >
-                                                                              <SfWizardResult world={w} data={objData} />        
+                                                                              <SfWizardResult world={w} data={objData} form={this.state.form} />        
                                                                             </Panel>) });       
       
       return (<>      
