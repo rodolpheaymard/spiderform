@@ -103,9 +103,16 @@ class SfWizardStep extends SfComponent {
     render()
     {
       let choicesBlock = <></>;
-      let isChosen = (othis, choiceId) =>  { if (othis.state.multichoice.get(choiceId)=== true) {
-                                                  return "checked";
-                                                }
+      let buttonValidate = <></>;
+       
+      let isAnswered = (othis) => { if (othis.state.singlechoice !== null)
+                                      { return true; }
+                                    if (othis.state.multichoice.size !== 0)
+                                      { return true; }
+                                    return false;
+                                  };
+      let isChosen = (othis, choiceId) =>  { if (othis.state.multichoice.get(choiceId)=== true) 
+                                                { return "checked";}
                                               return "";
                                             };
 
@@ -134,9 +141,24 @@ class SfWizardStep extends SfComponent {
                 </Space>
               </Radio.Group>
           </>;
-        }               
+        }   
+        
+        if (isAnswered(this))
+        {
+          buttonValidate = <>
+                          <Button onClick={this.handleValidate} type="primary" 
+                                  className="sfBtnWizardValidate" > Validate </Button>  
+                          </>;          
+        }
+        else
+        {
+          buttonValidate = <>
+                          <Button onClick={this.handleValidate} type="primary" disabled
+                                  className="sfBtnWizardValidate" > Validate </Button>  
+                         </>;             
+
+        }
       }
-      
       return (<>      
                <Card title={this.sequence !== null && this.sequence !== undefined ? this.sequence.name : ""} 
                     className="sfWizardStep">
@@ -152,8 +174,8 @@ class SfWizardStep extends SfComponent {
 
 
                   <Space className="sfWizardStepValidate">
-                  <Button onClick={this.handleValidate} type="primary" className="sfBtnWizardValidate" > Validate </Button>  
-                  </Space>      
+                   {buttonValidate}                  
+                   </Space>      
               </Card>
               </>  );
     }

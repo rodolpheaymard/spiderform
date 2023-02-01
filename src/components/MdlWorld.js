@@ -344,15 +344,22 @@ class MdlWorld
   
   getUserAnswers(userForm)
   {
-    if (userForm !== null && userForm !== undefined
-      && userForm.cache !== null && userForm.cache !== undefined
-      && userForm.cache.answers !== null && userForm.cache.answers !== undefined)
-      {
-        return userForm.cache.answers;
-      }
+    if (this.isOk(userForm)&& this.isOk(userForm.cache) && this.isOk(userForm.cache.answers))
+    {
+      return userForm.cache.answers;
+    }
     return new Map();  
   }
 
+  getMatchingScores(userChoice)
+  {
+    let result = new Map();
+    let scores = this.selectObjects("matchingscore", "choice", userChoice);
+
+    scores.forEach( m => result.set(m.concept, m) );
+
+    return result;
+  }
 
   getTypesList() {
     return [{ value: "user",          label: "Users" },

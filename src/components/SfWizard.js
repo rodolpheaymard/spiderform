@@ -1,6 +1,7 @@
 import React from "react";
 import SfComponent from "./SfComponent";
 import SfWizardStep from "./SfWizardStep";
+import SfWizardEnd from "./SfWizardEnd";
 import { GlobalContext } from "./GlobalContext";
 import { Button , Avatar, List } from "antd"; 
 
@@ -44,22 +45,13 @@ class SfWizard extends SfComponent {
     if (this.world.isOk(this.context)
         && this.world.isOk(this.context.session)
         && this.world.isOk(this.context.session.user))
-    {
-      let current_form_status = "notstarted";
-    
-      let current_form = this.context.session.user_form;
-      if (this.world.isOk(current_form))
-      {
-        current_form_status = "started";
-      }
-
+     {      
       this.setState( {user_id : this.context.session.user.id ,
-                      user_data : null ,
-                      user_form : current_form,
-                      user_form_status : current_form_status } );
-      
+                      user_data : null  } );
+                      
+      this.updateStatus(null);
+ 
       this.world.loadData(this.onDataLoaded, this.onErrorDataLoaded);
-      this.world.loadUserData( this.context.session.user , this.onUserDataLoaded, this.onErrorDataLoaded);
     }
   }
 
@@ -73,6 +65,7 @@ class SfWizard extends SfComponent {
     if (this.context.session != null)
     {
       this.setState({ statusMessage : "world data loaded " });
+      this.world.loadUserData( this.context.session.user , this.onUserDataLoaded, this.onErrorDataLoaded);
     }      
   }
 
@@ -82,6 +75,7 @@ class SfWizard extends SfComponent {
     {
       this.setState({ statusMessage : "user data loaded" ,
                       user_data : formsMap });
+      this.updateStatus(formsMap);
     }      
   }
 
@@ -121,6 +115,31 @@ class SfWizard extends SfComponent {
     return null;
   }
   
+  updateStatus(formsMap)
+  {
+    let userDataFormsMap =  formsMap !== null ? formsMap : this.state.user_data;
+  
+    let newstatus = "notstarted";
+
+    let current_form =  this.getSessionUserForm();
+    if (this.world.isOk(current_form))
+    {
+      newstatus = "started";
+      let nextquestion = this.getNextQuestion(userDataFormsMap);
+      if (nextquestion === null)
+      {
+        newstatus = "finished";
+      }
+      this.setState( { user_form : current_form,
+                       user_form_status : newstatus  } );
+    }
+    else
+    {
+      this.setState( {  user_form : null,
+                        user_form_status : "notstarted"  } );
+    }  
+  }
+
   handleStartForm(chosenForm) 
   {
     if (this.state.user_form !== chosenForm.id)
@@ -161,24 +180,16 @@ class SfWizard extends SfComponent {
       let userForm = this.state.user_data.get(this.state.user_form);
       userForm.cache.answers.set(user_answer.question, user_answer);   
     }
-
-    let newstatus = "started";
-
-    let nextquestion = this.getNextQuestion();
-    if (nextquestion === null)
-    {
-      newstatus = "finished";
-    }
-
-    this.setState( { user_form_status : newstatus , 
-                     user_answers : this.state.user_answers + 1 } );
-
+    
+    this.updateStatus(null);
   }
 
-  getNextQuestion()
+  getNextQuestion(formsMap)
   {
+    let userDataFormsMap =  formsMap !== null ? formsMap : this.state.user_data;
+  
     let result = null;    
-    if (this.world.isNull(this.state.user_data))
+    if (this.world.isNull(userDataFormsMap))
     {
       return null;
     }
@@ -194,7 +205,7 @@ class SfWizard extends SfComponent {
         for(let jj=0;jj < nbquest && result===null; jj++)
         { 
           let nbanswers = 0;
-          let userForm = this.state.user_data.get(this.state.user_form);
+          let userForm = userDataFormsMap.get(this.state.user_form);
           let userAnswers = this.world.getUserAnswers(userForm);
           userAnswers.forEach( (value, key, map) => {
                                   if (value.question === allquestions[jj].id)
@@ -216,7 +227,15 @@ class SfWizard extends SfComponent {
 
   render()
   { 
-    let block = null
+    let block = null;
+    let userAnswers= new Map();
+    if (this.world.isOk(this.state.user_data)
+        && this.world.isOk(this.state.user_form))
+    {
+      let userFormData = this.state.user_data.get(this.state.user_form);
+      userAnswers = this.world.getUserAnswers(userFormData);
+    }
+    
     switch (this.state.user_form_status) {
       case ("notstarted") :
         block = <>
@@ -236,26 +255,25 @@ class SfWizard extends SfComponent {
               </>;
       break;
       case ("started") :
-        block = <>
-              <SfWizardStep world={this.world} user={this.state.user_id} form={this.state.user_form} 
-                            question={this.getNextQuestion()} onValidated={this.handleNext}/>
-              </>;
+        let curquestion = this.getNextQuestion(null);
+        if (curquestion !== null)
+        {
+          block = <>
+          <SfWizardStep world={this.world} user={this.state.user_id} form={this.state.user_form} 
+                        question={curquestion} onValidated={this.handleNext}/>
+          </>;
+        }
       break;
       case ("finished") :
         block = <>
-              <div>Thank you for having filled this form.</div> 
-              <div>Your results are the following : </div> 
-              </>;
+                  <SfWizardEnd world={this.world} user={this.state.user_id} form={this.state.user_form} userdata={userAnswers} />
+                </>;
       break;
      default:
       break;
     } 
 
-
-    return ( <>  
-              {block}    
-              </>              
-        );
+    return (<>{block}</>);
   }
 }
 

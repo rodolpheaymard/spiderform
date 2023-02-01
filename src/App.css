@@ -108,7 +108,25 @@ input[type="submit"]:hover {
   background-color: #0b044b;
   color: white;  
  }
+ 
+ .sfWizardEnd .ant-card-head-wrapper  {
+  display: flex;
+  flex-direction: row;
+ 	align-items: center;
+  border-radius: 10px 10px 0px 0px;
+  padding: 5px 15px 5px 15px;
+  background-color: #044b16;
+  color: white;  
+ }
+
  .sfWizardStart {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 15px 5px 15px;
+  width: 75%;
+}
+
+.sfWizardEnd{
   display: flex;
   flex-direction: column;
   padding: 5px 15px 5px 15px;
