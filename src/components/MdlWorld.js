@@ -48,7 +48,6 @@ class MdlWorld
   newLogin(username, passwd, callback, errorcallback) {
 
     let cryptedpasswd = this.encrypt(passwd);
-
     let qryurl = this.server_url + "newlogin/"+ username + "/" + cryptedpasswd  ;
     axios.get(qryurl)     
          .then( res =>  {             
@@ -98,7 +97,9 @@ class MdlWorld
 
   backupObjects()
   {
-    return "{ allobjects }";
+    let result = { objects : []};
+    this.datamap.forEach( (obj, id, map) => { result.objects.push(obj);} ) ;   
+    return JSON.stringify(result,null,2);
   }
 
   getObjectsByType(objtype)
@@ -118,8 +119,7 @@ class MdlWorld
                             { 
                               result.push(obj);
                             } 
-                          } 
-                          );
+                          });
     return result;
   }
 
@@ -413,6 +413,7 @@ class MdlWorld
         result.push( this.getColumn(objectType, "id" , "ID", "none") );
         result.push( this.getColumn(objectType, "name" , "Name", "text") );
         result.push( this.getColumn(objectType, "with_explanations" , "Explanations", "select", "yes_or_no")  );
+        result.push( this.getColumn(objectType, "with_details" , "Details", "select", "yes_or_no")  );
       break;
        case "sequence" :
         result.push( this.getColumn(objectType, "id" , "ID", "none") );

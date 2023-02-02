@@ -24,27 +24,36 @@ class SfWizardResult extends SfComponent {
       }
     }
     
-
-
     render()
     {
-      let selectImage = (score) => { if (score <0) return "/redarrow.png"; else  return "/greenarrow.png"; };
-
+      // builds list of explanations 
       let listExplanations =  [];
-      this.state.data.scores.forEach(element => { listExplanations.push( <div> <Image src={selectImage(element.score)  } width="20px" heigth="18px"/>
-                                                                           {element.explanation}   </div>); });
-
+      let selectImage = (score) => { if (score <0) return "/redarrow.png"; else  return "/greenarrow.png"; };
+      this.state.data.scores.forEach(element => { listExplanations.push( <div> <Image src={selectImage(element.score)}
+                                                                                width="20px" heigth="18px"/>
+                                                                                {element.explanation}   </div>); });
       let blockExplanations = <></>;
       let formObj = this.world.getObjectById(this.state.form);
       if (this.world.isOk(formObj) && formObj.with_explanations === "yes" )
       {
-          blockExplanations = <div>   Your points come from those reasons : <br/> 
-                                    <List dataSource={listExplanations} renderItem={(item) => (<List.Item>{item}</List.Item>)} /> </div>  ;
+          blockExplanations = <div> Your points come from those reasons : <br/> 
+                              <List dataSource={listExplanations} renderItem={(item) => (<List.Item>{item}</List.Item>)} /> </div>  ;
+      }
+
+      // builds list of details (questions/answers/points)
+      let listDetails =  [];        
+      this.state.data.scores.forEach(element =>{ listDetails.push(  ) });
+      let blockDetails = <></>;
+      if (this.world.isOk(formObj) && formObj.with_details === "yes" )
+      {
+        blockDetails = <div> Your answers : <br/> 
+                          <List dataSource={listDetails} renderItem={(item) => (<List.Item>{item}</List.Item>)} /> </div>  ;
       }
 
       return (<>      
                 <div> {this.state.data.concept.explanation} </div> 
                 <div> {blockExplanations} </div>
+                <div> {blockDetails} </div>
               </> );
     }
 }

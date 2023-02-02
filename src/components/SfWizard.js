@@ -263,6 +263,14 @@ class SfWizard extends SfComponent {
                         question={curquestion} onValidated={this.handleNext}/>
           </>;
         }
+        else
+        {
+          // no more question ? form is finshed then ..
+          this.setState({user_form_status : "finished"});
+          block = <>
+                  <SfWizardEnd world={this.world} user={this.state.user_id} form={this.state.user_form} userdata={userAnswers} />
+                </>;
+        }
       break;
       case ("finished") :
         block = <>
