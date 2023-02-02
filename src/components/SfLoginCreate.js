@@ -82,12 +82,12 @@ class SfLoginCreate extends SfComponent {
     {   
       return ( <>   
                   <Row >
-                      <Col flex="100px">Choose your user name</Col> 
+                      <Col flex="170px">Create your login</Col> 
                       <Col flex="auto"> <Input placeholder="name..."  value={this.state.username} 
                                                onChange={(e)=>{this.handleChangeInput("uname",e)}} /> </Col>
                   </Row>
                   <Row >
-                      <Col flex="100px">Choose your password</Col> 
+                      <Col flex="170px">Choose a password</Col> 
                       <Col flex="auto"> <Input.Password placeholder="password..." value={this.state.password} 
                                                onChange={(e)=>{this.handleChangeInput("pass",e)}} />     </Col>
                   </Row>
