@@ -81,7 +81,7 @@ class SfWizard extends SfComponent {
 
   createUserForm(formId, userId)
   {
-    let newform = { id : "", type : "user_form", form : formId, user : userId , cache : { answers : new Map()} } ;
+    let newform = { id : "", type : "user_form", deleted : false,form : formId, user : userId , cache : { answers : new Map()} } ;
     this.world.addObject( newform , this.onObjectAdded, this.onErrorObjectAdded);
     return newform;
   }
@@ -235,7 +235,7 @@ class SfWizard extends SfComponent {
       let userFormData = this.state.user_data.get(this.state.user_form);
       userAnswers = this.world.getUserAnswers(userFormData);
     }
-    
+
     switch (this.state.user_form_status) {
       case ("notstarted") :
         block = <>

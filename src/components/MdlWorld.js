@@ -45,6 +45,20 @@ class MdlWorld
               });
   }
 
+  newLogin(username, passwd, callback, errorcallback) {
+
+    let cryptedpasswd = this.encrypt(passwd);
+
+    let qryurl = this.server_url + "newlogin/"+ username + "/" + cryptedpasswd  ;
+    axios.get(qryurl)     
+         .then( res =>  {             
+                callback(res.data);  
+            }, error => {
+                console.log(error);
+                errorcallback(error)
+              });
+  }
+
   isNull(obj)
   {
     return (obj === null || obj === undefined);
@@ -155,7 +169,7 @@ class MdlWorld
 
   addObject( objStarter , callback, errorcallback)
   {
-    let qryurl = this.server_url + "add/" + objStarter.type  ;
+    let qryurl = this.server_url + "add/" ;
     objStarter.deleted = false;
     axios.post(qryurl, objStarter , null)
     .then ( res => {
@@ -193,7 +207,7 @@ class MdlWorld
 
   saveObject( objToSave , callback, errorcallback)
   {
-    let qryurl = this.server_url + "save/" + objToSave.type;
+    let qryurl = this.server_url + "save/";
     axios.post(qryurl, objToSave , null)
     .then ( res => {
       this.updateDataMap(objToSave);

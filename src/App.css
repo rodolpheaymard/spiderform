@@ -10,34 +10,14 @@
   background-color: #f8f9fd;
 }
 
-input[type="text"],
-input[type="password"] {
-  height: 25px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  margin: 5px;
-}
 
-input[type="submit"] {
-  margin-top: 5px;
-  cursor: pointer;
-  font-size: 15px;
-  background: #2009a3;
-  border: 1px solid #0b044b;
-  color: #fff;
-  padding: 10px 10px;
-}
-
-input[type="submit"]:hover {
-  background: #08a3a8;
-}
-
-.sfButtonContainer{
+.sfButtonContainer {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-around;
 }
 
-.sfLogin {
+.sfLoginHeader {
   background-color: white;
   padding: 2rem;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -50,6 +30,8 @@ input[type="submit"]:hover {
   width: 100%;
 }
 
+
+
 .sfLoginForm {
   display: flex;
   flex-direction: row;
@@ -60,20 +42,16 @@ input[type="submit"]:hover {
   width: 100%;
 }
 
-.sfLoginHeader {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-	justify-content: space-around;
-	align-items: flex-start;
-	align-content: space-evenly;
-  width: 100%;
-}
+.sfMessage {
+  color: rgb(80, 80, 80);
+  font-size: small;
+  padding: 5px 5px 5px 5px;
+ }
 
-.error {
+.sfErrorMessage {
   color: red;
-  font-size: 18px;
-  margin: 5px;
+  font-size: small;
+  margin: 5px 5px 5px 5px;
 }
 
 
@@ -83,11 +61,6 @@ input[type="submit"]:hover {
   padding: 10px 10px 10px 10px;
  }
 
- .sfMessage {
-  color: rgb(80, 80, 80);
-  font-size: small;
-  padding: 5px 5px 5px 5px;
- }
 
 .sfAdminCard .ant-card-head-wrapper  {
   display: flex;

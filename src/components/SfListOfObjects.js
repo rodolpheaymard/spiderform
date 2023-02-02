@@ -72,7 +72,7 @@ class SfListOfObjects extends SfComponent {
   handleAdd(event) 
   {
     event.preventDefault();
-    this.world.addObject( { id : "", type : this.state.objectType  } , this.onObjectAdded, this.onErrorObjectAdded);
+    this.world.addObject( { id : "", type : this.state.objectType , deleted : false } , this.onObjectAdded, this.onErrorObjectAdded);
   }
 
   onErrorObjectAdded(response)
