@@ -61,19 +61,8 @@ class SfEditObject extends SfComponent {
       {
         let objectsList = this.world.getObjectsByType(coldef.dataChooserType);      
         objectsList.forEach(  c => { 
-          let cid = c.id;
-          let lbl = c[coldef.dataChooserLabel];
-          if (lbl === undefined || lbl === null)
-          {
-            lbl = "";
-          }
-
-          if (lbl.length > 40) 
-          {
-            lbl = lbl.substring(0,40) + "..." ;
-          }
-          
-          result.push( <Option value={c.id} key={c.id} >{cid + " " + lbl}</Option> ); 
+          let fulltext = this.world.getFullText( c, coldef.dataChooserLabel);
+          result.push( <Option value={c.id} key={c.id} >{fulltext}</Option> ); 
         })
       }
       
@@ -121,27 +110,11 @@ class SfEditObject extends SfComponent {
           break;
       }     
 
-      if (coldef.dataCalculated !== undefined)
-      {
-        var obj = this.state.curObject;
-        var oworld = this.world;
-        const pathattr = coldef.dataCalculated.split('.');
-        for( var i= 0; i < pathattr.length; i++)
-        {
-          let attr = pathattr[i];
-          if (obj[attr] !== undefined && obj[attr] !== null)
-          {
-            obj = obj[attr];
-            let fullobj = oworld.getObjectById(obj);
-            if (fullobj !== null)
-            {
-              obj = fullobj;
-            }
-          }
-        }
-
+      let obj = this.world.getCalculatedValue(coldef.dataCalculated, this.state.curObject);
+      if (obj !== null) {
         value = String(obj);
       }
+
       return <>{value}</>;
     }
 

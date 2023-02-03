@@ -154,6 +154,23 @@ class SfListOfObjects extends SfComponent {
   {
     // console.log("listofobjects onObjectAdded render , length = " + this.state.objects.length);
     let globalColumns = this.state.columns.map((x) => x); // to duplicate the list
+    globalColumns.forEach( (col) => {  
+           col.render = (_, record) => {
+                                          if (this.isOk(col.dataCalculated))
+                                          {
+                                            return this.world.getCalculatedValue(col.dataCalculated, record);
+                                          }
+                                          else if (this.isOk(col.dataChooserType))
+                                          {
+                                            let lnkObject = this.world.getObjectById(record[col.key]);
+                                            if (this.isOk(lnkObject))
+                                            {
+                                              return this.world.getFullText(lnkObject, col.dataChooserLabel);
+                                            }
+                                          }
+                                          return String(record[col.key]);
+                                      } ;
+        } );
     globalColumns.push({ title : "Actions" , 
                           key : "__actions" , 
                           dataIndex : "__actions",

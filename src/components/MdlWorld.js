@@ -109,10 +109,22 @@ class MdlWorld
     return JSON.stringify(result,null,2);
   }
 
+  sortObjects(result)
+  {
+    result.sort( (a, b) => { 
+      if ( a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      } 
+      return a.id.localeCompare(b.id);
+    });
+    return result;
+  }
+
   getObjectsByType(objtype)
   {
     let result = [];
     this.datamap.forEach( (obj, id, map) => { if (obj.type === objtype) { result.push(obj);} } );
+    this.sortObjects(result);
     return result;
   }
 
@@ -126,7 +138,8 @@ class MdlWorld
                             { 
                               result.push(obj);
                             } 
-                          });
+                          });    
+    this.sortObjects(result);    
     return result;
   }
 
@@ -298,10 +311,12 @@ class MdlWorld
     return result;  
   }
 
-  applyFilter(value,record, colKey) 
+  applyFilter(value, record, colKey) 
   {    
-    if (record[colKey] === null || record[colKey] === undefined)
+    if (this.isNull(record[colKey]))
     {
+      if (value === "undefined" || value === "null")
+        return true;
       return false;
     }
 
@@ -315,28 +330,69 @@ class MdlWorld
     }
   }
 
-  getColumn( objectType, colKey , colTitle, colDataChooser , colDataChooserType = null, colDataChooserLabel = null, colDataCalculated = null)
+  getColumn( objectType, colKey , colTitle, colDataSpecs )
   {
     let result =  { key : colKey , 
                     render : (text) => (text !== undefined ? String(text) : ""),
                     title : colTitle,
                     dataIndex: colKey, 
-                    dataChooser: colDataChooser,
-                    filters: this.getFilters( objectType, colKey),
-                    onFilter: (value, record) => this.applyFilter(value,record, colKey) ,
+                    dataChooser: colDataSpecs.mode,
+                    filters: this.getFilters(objectType, colKey), 
+                    onFilter: (value, record) => { this.applyFilter(value, record, colKey); }  ,
                     sorter: (a, b) => this.sortColumn(a,b,colKey)
                   };
 
-    if (colDataChooserType !== null) {
-      result.dataChooserType = colDataChooserType;
+    if (this.isOk(colDataSpecs.objtype)) {
+      result.dataChooserType = colDataSpecs.objtype;
     }
-    if (colDataChooserLabel !== null) {
-      result.dataChooserLabel = colDataChooserLabel;
+    if (this.isOk(colDataSpecs.labelpath)) {
+      result.dataChooserLabel = colDataSpecs.labelpath;
     }
-    if (colDataCalculated !== null) {
-      result.dataCalculated = colDataCalculated;
-    }    
+    if (this.isOk(colDataSpecs.calcpath)) {
+      result.dataCalculated = colDataSpecs.calcpath;
+    }
+
     return result;
+  }
+
+  getCalculatedValue(evalpath, obj)
+  {
+    let result = null;
+    if (this.isOk(evalpath))
+    {
+      result = obj;
+      const pathattr = evalpath.split('.');
+      for( var i= 0; i < pathattr.length; i++)
+      {
+        let attr = pathattr[i];
+        if (this.isOk(result[attr]))
+        {
+          result = result[attr];
+          let fullobj = this.getObjectById(result);
+          if (fullobj !== null)
+          {
+            result = fullobj;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  getFullText(obj , proplabel)
+  {
+    let cid = obj.id;
+    let lbl = obj[proplabel];
+    if (this.isNull(lbl))
+    {
+      lbl = "";
+    }
+    if (lbl.length > 40) 
+    {
+      lbl = lbl.substring(0,40) + "..." ;
+    }
+    let fulltext = "["+cid + "] " + lbl;
+    return fulltext;
   }
 
   getUserDataList() {
@@ -402,48 +458,53 @@ class MdlWorld
     switch(objectType)
     {
       case "user" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "username" , "Login", "none") );
-        result.push( this.getColumn(objectType, "password" , "Password", "none") );
-        result.push( this.getColumn(objectType, "isadmin" , "Admin ?", "none") );
+        result.push( this.getColumn(objectType, "id" , "ID", { mode : "none" } ) );
+        result.push( this.getColumn(objectType, "username" , "Login", { mode : "none" } ) );
+        result.push( this.getColumn(objectType, "password" , "Password", { mode : "none" }) );
+        result.push( this.getColumn(objectType, "isadmin" , "Admin ?", { mode : "none" }) );
         break;
       case "concept" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "name" , "Name", "text") );
-        result.push( this.getColumn(objectType, "explanation" , "Explanation", "textmultiline") );
-        result.push( this.getColumn(objectType, "jobs" , "Jobs", "text") );
+        result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
+        result.push( this.getColumn(objectType, "name" , "Name",  { mode : "text" }) );
+        result.push( this.getColumn(objectType, "order" , "Order",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "explanation" , "Explanation",  { mode : "textmultiline" }) );
+        result.push( this.getColumn(objectType, "jobs" , "Jobs",  { mode : "text" }) );
         break;
       case "form" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "name" , "Name", "text") );
-        result.push( this.getColumn(objectType, "with_explanations" , "Explanations", "select", "yes_or_no")  );
-        result.push( this.getColumn(objectType, "with_details" , "Details", "select", "yes_or_no")  );
+        result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
+        result.push( this.getColumn(objectType, "name" , "Name",  { mode : "text" }) );
+        result.push( this.getColumn(objectType, "order" , "Order",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "with_explanations" , "Explanations",  { mode : "select", objtype : "yes_or_no" })  );
+        result.push( this.getColumn(objectType, "with_details" , "Details",  { mode : "select", objtype : "yes_or_no"} )  );
       break;
        case "sequence" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "name" , "Name", "text") );
-        result.push( this.getColumn(objectType, "form" , "Form", "select" , "form", "name") );
+        result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
+        result.push( this.getColumn(objectType, "name" , "Name",  { mode : "text" }) );
+        result.push( this.getColumn(objectType, "order" , "Order",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "form" , "Form",  { mode : "select" ,  objtype : "form", labelpath : "name" }) );
        break;
       case "question" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "form" , "Form", "none" , null , null, "sequence.form.name") );
-        result.push( this.getColumn(objectType, "sequence" , "Sequence", "select", "sequence", "name") );
-        result.push( this.getColumn(objectType, "text" , "Text", "textmultiline") );
-        result.push( this.getColumn(objectType, "multichoice" , "Multi", "select", "yes_or_no") );
+        result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
+        result.push( this.getColumn(objectType, "order" , "Order",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "form" , "Form",  { mode : "none" , calcpath : "sequence.form.name" }) );
+        result.push( this.getColumn(objectType, "sequence" , "Sequence",  { mode : "select",  objtype : "sequence", labelpath : "name" }) );
+        result.push( this.getColumn(objectType, "text" , "Text",  { mode : "textmultiline" }) );
+        result.push( this.getColumn(objectType, "multichoice" , "Multi",  { mode : "select",  objtype : "yes_or_no" }) );
       break;
       case "choice" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "question" , "Question", "select", "question", "text") );
-        result.push( this.getColumn(objectType, "text" , "Text", "textmultiline") );
-        result.push( this.getColumn(objectType, "image" , "Image", "imageurl") );   
+        result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
+        result.push( this.getColumn(objectType, "order" , "Order",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "question" , "Question",  { mode : "select",  objtype : "question", labelpath : "text" }) );
+        result.push( this.getColumn(objectType, "text" , "Text",  { mode : "textmultiline" }) );
+        result.push( this.getColumn(objectType, "image" , "Image",  { mode : "imageurl" }) );   
         break;
       case "matchingscore" :
-        result.push( this.getColumn(objectType, "id" , "ID", "none") );
-        result.push( this.getColumn(objectType, "question" , "Question", "none" , null , null, "choice.question.text") );
-        result.push( this.getColumn(objectType, "choice" , "Choice", "select", "choice", "text") );
-        result.push( this.getColumn(objectType, "concept" , "Concept", "select", "concept", "name") );
-        result.push( this.getColumn(objectType, "score" , "Score", "number") );
-        result.push( this.getColumn(objectType, "explanation" , "Explanation", "textmultiline") );     
+        result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
+        result.push( this.getColumn(objectType, "question" , "Question",  { mode : "none" , calcpath: "choice.question.text" }) );
+        result.push( this.getColumn(objectType, "choice" , "Choice",  { mode : "select",   objtype : "choice", labelpath : "text" }) );
+        result.push( this.getColumn(objectType, "concept" , "Concept",  { mode : "select",  objtype : "concept", labelpath :  "name" }) );
+        result.push( this.getColumn(objectType, "score" , "Score",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "explanation" , "Explanation",  { mode : "textmultiline" }) );     
         break;
     default:
         break;
