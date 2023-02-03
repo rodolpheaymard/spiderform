@@ -11,17 +11,16 @@ class SfFormCreation extends SfComponent {
  
     constructor(props) {
       super(props);
-      this.world = props.world;
-
+   
       this.state = {
         currObjType : "",
-        statusMessage : "loading data"  
+        statusMessage : this.getRscText("data_loading")
       };
 
-      this.onDataLoaded= this.onDataLoaded.bind(this);
-      this.onErrorDataLoaded= this.onErrorDataLoaded.bind(this);
-      this.handleChooseType= this.handleChooseType.bind(this);          
-      this.exportFullData= this.exportFullData.bind(this);          
+      this.onDataLoaded = this.onDataLoaded.bind(this);
+      this.onErrorDataLoaded = this.onErrorDataLoaded.bind(this);
+      this.handleChooseType = this.handleChooseType.bind(this);          
+      this.exportFullData = this.exportFullData.bind(this);          
     }
 
     componentDidMount()
@@ -31,7 +30,7 @@ class SfFormCreation extends SfComponent {
 
     onErrorDataLoaded(response)
     {
-      this.setState({ statusMessage : "error loading data"});
+      this.setState({ statusMessage : this.getRscText("err_dataloading")});
     }    
 
     onDataLoaded(response)
@@ -63,7 +62,6 @@ class SfFormCreation extends SfComponent {
 
     render()
     {
-      //console.log("render  form creation " + this.state.currObjType );
       return ( <>                 
                   <Space size="large" >
                     <div className="sfPageTitle"> Administration Back-Office </div>
@@ -72,7 +70,7 @@ class SfFormCreation extends SfComponent {
                               value={this.state.currObjType}  
                               options={this.world.getTypesList()} />
                     <div className="sfMessage">{this.state.statusMessage}</div>  
-                    <DownloadLink    label="Download full export"
+                    <DownloadLink    label= {this.getRscText("dl_full")}
                                      filename="myspiderdata.txt"
                                      exportFile={() => this.exportFullData()}
                                     />

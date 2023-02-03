@@ -1,5 +1,6 @@
 import axios from 'axios';
 import CryptoJS from "crypto-js";
+import SfResources from './SfResources';
 
 const dotenv = require('dotenv');
 const secretPass = "XkhZG47zohfaf=+YETxfW2t2W";
@@ -8,6 +9,7 @@ class MdlWorld
 {
   constructor() 
   {
+    this.resources = new SfResources();
     this.datamap = new Map();
     this.server_url =  process.env.REACT_APP_API_URL;
   }
@@ -25,7 +27,22 @@ class MdlWorld
       console.log(result.parsed);
     }
   }
+    
+  isNull(obj)
+  {
+    return (obj === null || obj === undefined);
+  }
   
+  isOk(obj)
+  {
+    return (obj !== null && obj !== undefined);
+  }
+
+  getRscText(key)
+  {
+    return this.resources.getText(key);
+  }
+
   encrypt(passwd)
   {
     return CryptoJS.MD5(passwd + secretPass).toString().replace('/','U').replace('\\','V');
@@ -56,16 +73,6 @@ class MdlWorld
                 console.log(error);
                 errorcallback(error)
               });
-  }
-
-  isNull(obj)
-  {
-    return (obj === null || obj === undefined);
-  }
-  
-  isOk(obj)
-  {
-    return !this.isNull(obj);
   }
 
   cleanDataMap()
@@ -359,7 +366,6 @@ class MdlWorld
         user_form.cache.answers.set(obj.question , obj);
       } 
     });
-
     return result;
   }
   
@@ -376,9 +382,7 @@ class MdlWorld
   {
     let result = new Map();
     let scores = this.selectObjects("matchingscore", "choice", userChoice);
-
     scores.forEach( m => result.set(m.concept, m) );
-
     return result;
   }
 

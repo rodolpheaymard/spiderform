@@ -7,7 +7,7 @@ class SfWizardStep extends SfComponent {
 
     constructor(props) {
       super(props);
-      this.world = props.world;  
+   
       this.onValidated = props.onValidated;
       this.state = { user : props.user,
                      form : props.form,
@@ -49,8 +49,7 @@ class SfWizardStep extends SfComponent {
         this.choices = this.world.selectObjects("choice","question",question.id);
       }      
     }
-
-    
+ 
     handleChoose(event) 
     {
       event.preventDefault();
@@ -59,7 +58,7 @@ class SfWizardStep extends SfComponent {
 
     handleMultiChoose(checkedValues) 
     {
-       let new_mchoice = new Map();
+      let new_mchoice = new Map();
       checkedValues.forEach( cid => new_mchoice.set(cid,true));
   
       this.setState( { multichoice : new_mchoice });
@@ -99,7 +98,6 @@ class SfWizardStep extends SfComponent {
     {      
     }
 
-
     render()
     {
       let choicesBlock = <></>;
@@ -116,7 +114,7 @@ class SfWizardStep extends SfComponent {
                                               return "";
                                             };
 
-      if (this.world.isOk(this.state.question))
+      if (this.isOk(this.state.question))
       {
         if (this.state.question.multichoice === "yes")
         {
@@ -147,14 +145,14 @@ class SfWizardStep extends SfComponent {
         {
           buttonValidate = <>
                           <Button onClick={this.handleValidate} type="primary" 
-                                  className="sfBtnWizardValidate" > Validate </Button>  
+                                  className="sfBtnWizardValidate" > {this.getRscText("validate")} </Button>  
                           </>;          
         }
         else
         {
           buttonValidate = <>
                           <Button onClick={this.handleValidate} type="primary" disabled
-                                  className="sfBtnWizardValidate" > Validate </Button>  
+                                  className="sfBtnWizardValidate" > {this.getRscText("validate")} </Button>  
                          </>;             
 
         }

@@ -2,14 +2,16 @@ import React from 'react';
 import SfComponent from './SfComponent';
 import { Card , Space, Collapse } from "antd"; 
 import SfWizardResult from './SfWizardResult';
+import { GlobalContext } from "./GlobalContext";
 
 const { Panel } = Collapse;
 
 class SfWizardEnd extends SfComponent {
-
+  static contextType = GlobalContext;  // global context for session  
+ 
     constructor(props) {
       super(props);
-      this.world = props.world;  
+
       this.state = { user : props.user,
                      form : props.form, 
                      userdata : props.userdata,
@@ -45,25 +47,29 @@ class SfWizardEnd extends SfComponent {
        let results = new Map();
        let othis = this;
        useranswers.forEach( ( useranswer, questionid) => {
-        useranswer.choices.forEach( (userchoice ) =>
-          {
-            let scores = othis.world.getMatchingScores(userchoice);
-            scores.forEach( (matchingscore , conceptid) => { 
+        useranswer.choices.forEach( (userchoice) => {
+          let scores = othis.world.getMatchingScores(userchoice);
+          scores.forEach( (matchingscore , conceptid) => { 
               if (results.has(conceptid) === false)
               {
-                results.set(conceptid, { total:0, scores:[] });
+                results.set(conceptid, {  total : 0, 
+                                          scores : [], 
+                                          concept : othis.world.getObjectById(conceptid),
+                                          userchoices : [] });
               }
-              results.get(conceptid).total += matchingscore.score;
-              results.get(conceptid).scores.push(matchingscore);
-              results.get(conceptid).concept = othis.world.getObjectById(conceptid);
-            } );
+              let resultForConcept =  results.get(conceptid)
+              resultForConcept.total += matchingscore.score;
+              resultForConcept.scores.push(matchingscore);
+
+              let userchoice = othis.world.getObjectById(matchingscore.choice);
+              let userquestion = othis.world.getObjectById(userchoice.question);
+              resultForConcept.userchoices.push( { score : matchingscore.score,  userchoice :  userchoice, userquestion : userquestion } );
+            }) ;
           });
-       });
-
-       // sort by  highest to lowest total
-       results = new Map([...results.entries()].sort((a, b) => a.total - b.total));
-
+        });
        
+       // sort by  highest to lowest total
+       results = new Map([...results.entries()].sort((a, b) => a.total - b.total));       
        this.setState({  results : results } );
     }
 
@@ -81,8 +87,9 @@ class SfWizardEnd extends SfComponent {
       let w = this.world;
 
       let listResults =  [];
-      this.state.results.forEach((objData , conceptid) =>{ listResults.push(<Panel header={objData.concept.name + ' : ' 
-                                                                                           + objData.total + ' points' } 
+      this.state.results.forEach((objData , conceptid) =>{ listResults.push(<Panel header={objData.concept.name 
+                                                                                            + ' : ' + objData.total 
+                                                                                            + ' ' + w.getRscText("pts") } 
                                                                                    key={objData.concept.id}  >
                                                                               <SfWizardResult world={w} data={objData} form={this.state.form} />        
                                                                             </Panel>) });       
@@ -91,8 +98,8 @@ class SfWizardEnd extends SfComponent {
                <Card title="The End" className="sfWizardEnd" >
 
                 <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-                  <p>Thank you for having filled this form.</p>
-                  <p>Here are your results : </p>
+                  <p>{this.getRscText("thanks1")} </p>
+                  <p>{this.getRscText("results1")} </p>
                 </Space>
 
                 <Collapse  accordion>        

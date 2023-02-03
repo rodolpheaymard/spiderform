@@ -1,13 +1,15 @@
 import React from 'react';
 import SfComponent from './SfComponent';
+import { GlobalContext } from "./GlobalContext";
 import { Image , List } from "antd"; 
 
 
 class SfWizardResult extends SfComponent {
-
+    static contextType = GlobalContext;  // global context for session  
+ 
     constructor(props) {
       super(props);
-      this.world = props.world;  
+        
       this.state = { data : props.data , form :props.form } ;
       }
 
@@ -34,7 +36,7 @@ class SfWizardResult extends SfComponent {
                                                                                 {element.explanation}   </div>); });
       let blockExplanations = <></>;
       let formObj = this.world.getObjectById(this.state.form);
-      if (this.world.isOk(formObj) && formObj.with_explanations === "yes" )
+      if (this.isOk(formObj) && formObj.with_explanations === "yes" )
       {
           blockExplanations = <div> Your points come from those reasons : <br/> 
                               <List dataSource={listExplanations} renderItem={(item) => (<List.Item>{item}</List.Item>)} /> </div>  ;
@@ -42,9 +44,11 @@ class SfWizardResult extends SfComponent {
 
       // builds list of details (questions/answers/points)
       let listDetails =  [];        
-      this.state.data.scores.forEach(element =>{ listDetails.push(  ) });
+      this.state.data.userchoices.forEach(uc =>{ listDetails.push( <div><div>{uc.userquestion.text}</div> 
+                                                                         <div>{uc.userchoice.text}</div>
+                                                                         <div>{uc.score} {this.getRscText("pts")}</div> </div> ) });
       let blockDetails = <></>;
-      if (this.world.isOk(formObj) && formObj.with_details === "yes" )
+      if (this.isOk(formObj) && formObj.with_details === "yes" )
       {
         blockDetails = <div> Your answers : <br/> 
                           <List dataSource={listDetails} renderItem={(item) => (<List.Item>{item}</List.Item>)} /> </div>  ;

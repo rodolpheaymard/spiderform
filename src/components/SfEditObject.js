@@ -5,15 +5,13 @@ import { Row, Col, Divider, Input, InputNumber, Select} from "antd";
 const { Option } = Select;
 const { TextArea } = Input;
 
-
-
 class SfEditObject extends SfComponent {
 
   static contextType = GlobalContext;
  
     constructor(props) {
       super(props);
-      this.world = props.world;      
+      
       this.editObject= props.editObject;   
       this.columns = this.world.columnsForType(this.editObject.type);            
            
@@ -40,14 +38,12 @@ class SfEditObject extends SfComponent {
    
     handleChangeInput(key,e) 
     {
-      //console.log( " handleChange key=" + key + " value=" + e.target.value);
       this.state.curObject[key] = e.target.value;
       this.setState( { curObject : this.state.curObject } );
     }
 
     handleChangeSelect(key,val) 
     {
-      //console.log( " handleChange key=" + key + " value=" + val);
       this.state.curObject[key] = val;
       this.setState( { curObject : this.state.curObject } );
     }
@@ -66,9 +62,6 @@ class SfEditObject extends SfComponent {
         let objectsList = this.world.getObjectsByType(coldef.dataChooserType);      
         objectsList.forEach(  c => { 
           let cid = c.id;
-
-          // console.log( " c[" + coldef.dataChooserLabel + "] = " + c[coldef.dataChooserLabel] );
-
           let lbl = c[coldef.dataChooserLabel];
           if (lbl === undefined || lbl === null)
           {
@@ -91,7 +84,7 @@ class SfEditObject extends SfComponent {
     {
       let value = this.state.curObject[coldef.key];
       let key = coldef.key;
-      let placeholdertext = "enter value";
+      let placeholdertext = this.getRscText("enter_val"); 
 
       switch(coldef.dataChooser)
       {

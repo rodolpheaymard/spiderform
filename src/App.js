@@ -10,7 +10,7 @@ export default class App extends React.Component {
   {
     super();
     this.world = new MdlWorld();
-
+    
     this.state = {
       session: this.GetData('spiderformsession'),
       setSession: this.setSession,

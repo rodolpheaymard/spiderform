@@ -10,7 +10,7 @@ class SfLogin extends SfComponent {
    
     constructor(props) {
       super(props);
-      this.world = props.world;
+
       this.state = {errorMessage : null ,
                     session : null,
                     signingup : false,
@@ -64,6 +64,12 @@ class SfLogin extends SfComponent {
     handleLogin(event) 
     {
       event.preventDefault();
+      if (this.isNull(this.state.username))
+      {
+        this.setState({ session : null , errorMessage : this.getRscText("err_login1") });     
+        return;
+      }
+
       this.world.login(this.state.username, this.state.password, this.finalizeLogin , this.loginCallError);
     }
 
@@ -88,7 +94,7 @@ class SfLogin extends SfComponent {
 
     loginCallError(error)
     {
-      this.setState({ errorMessage : "unknown error while login" });          
+      this.setState({ errorMessage : this.getRscText("err_login0") });          
     }
    
     handleSignUpStart(event) 
@@ -102,7 +108,7 @@ class SfLogin extends SfComponent {
         event.preventDefault();
 
         const createLoginModal = this.CreateLoginModal.current;
-        if (this.world.isOk(createLoginModal))
+        if (this.isOk(createLoginModal))
         {
           this.world.newLogin(createLoginModal.state.username, createLoginModal.state.password, this.createLoginOK , this.createLoginError); 
         }
@@ -130,7 +136,7 @@ class SfLogin extends SfComponent {
         else
         {
           const createLoginModal = this.CreateLoginModal.current;
-          if (this.world.isOk(createLoginModal))
+          if (this.isOk(createLoginModal))
           {
             createLoginModal.setState({errorMessage : response.message });  
           }
@@ -140,7 +146,7 @@ class SfLogin extends SfComponent {
 
     createLoginError(error)
     {
-      this.setState({ errorMessage : "unknown error while login" });          
+      this.setState({ errorMessage : this.getRscText("err_login0") });          
     }
 
     renderErrorMessage() 
@@ -160,10 +166,10 @@ class SfLogin extends SfComponent {
             <Col span={12}>
               Hello {this.state.session !== null 
                       && this.state.session.user.username !== null ?
-                      this.state.session.user.username : ""}, you are logged in
+                      this.state.session.user.username : ""}, {this.getRscText("loggued")}
             </Col>
             <Col span={10}>
-            <Button type="primary" onClick={this.handleLogout}>Logout</Button>
+            <Button type="primary" onClick={this.handleLogout}>{this.getRscText("signout")}</Button>
             </Col>
         </>
       );
@@ -178,17 +184,17 @@ class SfLogin extends SfComponent {
                 <Input.Password placeholder="password..." value={this.state.password} 
                                                 onChange={(e)=>{this.handleChangeInput("pass",e)}} />              
                
-                <Button onClick={this.handleLogin}  type="primary" className="sfBtnEdit">Sign In</Button>
+                <Button onClick={this.handleLogin}  type="primary" className="sfBtnEdit">{this.getRscText("signin")}</Button>
               </Space.Compact> 
               <div>{this.renderErrorMessage()}</div>
             </Col>
             <Col span={2}>
               <Space  size="small" align="center">
-                 <Button onClick={this.handleSignUpStart} className="sfBtnEdit">Sign Up</Button>
+                 <Button onClick={this.handleSignUpStart} className="sfBtnEdit">{this.getRscText("signup")}</Button>
               </Space>
             </Col>
        
-          <Modal open={this.state.signingup} title="Sign Up" onOk={this.handleSignUpOk} onCancel={this.handleSignUpCancel}>              
+          <Modal open={this.state.signingup} title={this.getRscText("signup")} onOk={this.handleSignUpOk} onCancel={this.handleSignUpCancel}>              
                 <SfLoginCreate world={this.world} ref={this.CreateLoginModal} />
           </Modal>         
 

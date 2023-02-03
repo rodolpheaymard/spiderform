@@ -10,13 +10,12 @@ class SfFormFiller extends SfComponent {
  
   constructor(props) {
     super(props);
-    this.world = props.world;
-
+  
+    this.welcometext = this.world.getRscText("welcome_filler")
   }
 
   componentDidMount()
-  { 
-  
+  {   
   }
 
   componentDidUpdate(prevProps) 
@@ -27,7 +26,7 @@ class SfFormFiller extends SfComponent {
   {
     return ( <>                 
                 <Space size="large" >
-                  <div className="sfPageTitle"> Welcome to the Wonderful Form Filler </div>          
+                  <div className="sfPageTitle"> {this.welcometext} </div>          
                 </Space>
                 <Divider/>
                 <SfWizard world={this.world}  />

@@ -12,7 +12,6 @@ class SfWizard extends SfComponent {
   
   constructor(props) {
     super(props);
-    this.world = props.world;    
     
     this.state = {  user_id : null,
                     user_data : null ,
@@ -42,9 +41,9 @@ class SfWizard extends SfComponent {
 
   loadUserData()
   {
-    if (this.world.isOk(this.context)
-        && this.world.isOk(this.context.session)
-        && this.world.isOk(this.context.session.user))
+    if (this.isOk(this.context)
+        && this.isOk(this.context.session)
+        && this.isOk(this.context.session.user))
      {      
       this.setState( {user_id : this.context.session.user.id ,
                       user_data : null  } );
@@ -57,23 +56,21 @@ class SfWizard extends SfComponent {
 
   onErrorDataLoaded(response)
   {
-    this.setState({ statusMessage : "error loading data"});
+    this.setState({ statusMessage : this.getRscText("err_dataloading")});
   }    
 
   onDataLoaded(response)
   {      
-    if (this.context.session != null)
-    {
-      this.setState({ statusMessage : "world data loaded " });
+    if (this.isOk(this.context.session)) {
+      this.setState({ statusMessage : this.getRscText("dataloaded1")});
       this.world.loadUserData( this.context.session.user , this.onUserDataLoaded, this.onErrorDataLoaded);
     }      
   }
 
   onUserDataLoaded(formsMap)
   {      
-    if (this.context.session != null)
-    {
-      this.setState({ statusMessage : "user data loaded" ,
+    if (this.isOk(this.context.session)) {
+      this.setState({ statusMessage :  this.getRscText("dataloaded2") ,
                       user_data : formsMap });
       this.updateStatus(formsMap);
     }      
@@ -92,10 +89,9 @@ class SfWizard extends SfComponent {
 
   onObjectAdded(newobj)
   { 
-    if (newobj !== null && newobj !== undefined
-        && newobj.type === "user_form")
+    if (this.isOk(newobj) && newobj.type === "user_form")
     {
-      if (this.world.isOk(this.state.user_data))
+      if (this.isOk(this.state.user_data))
       {
         let newuserdata = this.state.user_data;
         newuserdata.get(newobj.form).id = newobj.id;
@@ -106,9 +102,9 @@ class SfWizard extends SfComponent {
 
   getSessionUserForm()
   {
-    if (this.world.isOk(this.context)
-        && this.world.isOk(this.context.session)
-        && this.world.isOk(this.context.session.user_form) )
+    if (this.isOk(this.context)
+        && this.isOk(this.context.session)
+        && this.isOk(this.context.session.user_form) )
     {
       return this.context.session.user_form;
     }
@@ -122,7 +118,7 @@ class SfWizard extends SfComponent {
     let newstatus = "notstarted";
 
     let current_form =  this.getSessionUserForm();
-    if (this.world.isOk(current_form))
+    if (this.isOk(current_form))
     {
       newstatus = "started";
       let nextquestion = this.getNextQuestion(userDataFormsMap);
@@ -151,14 +147,14 @@ class SfWizard extends SfComponent {
 
   startForm(chosenForm)
   {
-    if (this.world.isOk(this.context.session))
+    if (this.isOk(this.context.session))
     {
       let newsession = this.context.session;
       newsession.user_form = chosenForm.id;
       this.context.setSession(newsession);
     }
 
-    if (this.world.isOk(this.state.user_data))
+    if (this.isOk(this.state.user_data))
     {
       if (this.state.user_data.has(chosenForm.id) === false)
       {
@@ -175,7 +171,7 @@ class SfWizard extends SfComponent {
   handleNext(user_answer) 
   {
 
-    if (this.world.isOk(this.state.user_data))
+    if (this.isOk(this.state.user_data))
     {
       let userForm = this.state.user_data.get(this.state.user_form);
       userForm.cache.answers.set(user_answer.question, user_answer);   
@@ -189,12 +185,12 @@ class SfWizard extends SfComponent {
     let userDataFormsMap =  formsMap !== null ? formsMap : this.state.user_data;
   
     let result = null;    
-    if (this.world.isNull(userDataFormsMap))
+    if (this.isNull(userDataFormsMap))
     {
       return null;
     }
 
-    if (this.world.isOk(this.state.user_form))
+    if (this.isOk(this.state.user_form))
     {        
       let allsequences = this.world.selectObjects("sequence", "form", this.state.user_form );
       let nbseq = allsequences.length;
@@ -229,8 +225,8 @@ class SfWizard extends SfComponent {
   { 
     let block = null;
     let userAnswers= new Map();
-    if (this.world.isOk(this.state.user_data)
-        && this.world.isOk(this.state.user_form))
+    if (this.isOk(this.state.user_data)
+        && this.isOk(this.state.user_form))
     {
       let userFormData = this.state.user_data.get(this.state.user_form);
       userAnswers = this.world.getUserAnswers(userFormData);
@@ -240,13 +236,13 @@ class SfWizard extends SfComponent {
       case ("notstarted") :
         block = <>
                 <div className="sfWizardStart">                  
-                  <div>Please, select a form to start or continue filling it</div> 
+                  <div>{this.getRscText("select_form")}</div> 
                     <List itemLayout="horizontal"
                           dataSource={this.world.getObjectsByType("form")}
                           renderItem={(item) => (
                           <List.Item>
                             <List.Item.Meta   avatar={<Avatar src="/formulaire-250x187.png" />}   title={item.name}  description=""/>
-                            <Button onClick={()=> this.handleStartForm(item)}  type="primary" className="sfBtnEdit" key={item.id + "_start"}>Start</Button>
+                            <Button onClick={()=> this.handleStartForm(item)}  type="primary" className="sfBtnEdit" key={item.id + "_start"}>{this.getRscText("start")}</Button>
                           </List.Item>
                         )}
                       />

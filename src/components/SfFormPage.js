@@ -1,9 +1,9 @@
 import React from "react";
 import SfComponent from "./SfComponent";
+import { GlobalContext } from "./GlobalContext";
 import SfFormCreation from "./SfFormCreation";
 import SfFormFiller from "./SfFormFiller";
 import SfLogin from "./SfLogin";
-import { GlobalContext } from "./GlobalContext";
 
 
 class SfFormPage extends SfComponent {
@@ -14,35 +14,30 @@ class SfFormPage extends SfComponent {
     {
       super(props);      
       this.state = {session : null};   
-      this.world = props.world;    
     }
 
     componentDidMount()
     {
-        const context = this.context;
-        this.setState({session : context.session});   
+      const context = this.context;
+      this.setState({session : context.session});   
     }
 
     rerender=()=>{
-        this.forceUpdate();
+      this.forceUpdate();
     }
-    
     
     isLoggued()
     { 
-        const context = this.context;
-        if( context.session !== null
-            && context.session.user !== null)
-            return true;
-        return false;  
+      const context = this.context;
+      if( this.isOk(context.session) && this.isOk(context.session.user))
+        return true;
+      return false;  
     }
   
     isAdmin()
     {  
         const context = this.context;
-        if( context.session !== null
-            && context.session.user !== null
-            && context.session.user.isadmin === true) 
+        if( this.isLoggued() && context.session.user.isadmin === true) 
             return true;
         return false;  
     }

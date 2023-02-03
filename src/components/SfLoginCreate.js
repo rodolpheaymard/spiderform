@@ -11,7 +11,6 @@ class SfLoginCreate extends SfComponent {
  
     constructor(props) {
       super(props);
-      this.world = props.world;      
            
       this.state = { errorMessage : null , username : null , password : null }; 
     
@@ -23,9 +22,6 @@ class SfLoginCreate extends SfComponent {
 
     componentDidUpdate(prevProps) 
     {
-      if (this.props.editObject !== prevProps.editObject ) 
-      {
-      }
     }
     
     handleChangeInput(key,e) 
@@ -66,7 +62,7 @@ class SfLoginCreate extends SfComponent {
 
     createLoginError(error)
     {
-      this.setState({ errorMessage : "unknown error while login" });          
+      this.setState({ errorMessage : this.getRscText("err_login0") });          
     }
 
     renderErrorMessage() 
@@ -82,12 +78,12 @@ class SfLoginCreate extends SfComponent {
     {   
       return ( <>   
                   <Row >
-                      <Col flex="170px">Create your login</Col> 
+                      <Col flex="170px">{this.getRscText("create_login")}</Col> 
                       <Col flex="auto"> <Input placeholder="name..."  value={this.state.username} 
                                                onChange={(e)=>{this.handleChangeInput("uname",e)}} /> </Col>
                   </Row>
                   <Row >
-                      <Col flex="170px">Choose a password</Col> 
+                      <Col flex="170px">{this.getRscText("choose_pass")}</Col> 
                       <Col flex="auto"> <Input.Password placeholder="password..." value={this.state.password} 
                                                onChange={(e)=>{this.handleChangeInput("pass",e)}} />     </Col>
                   </Row>

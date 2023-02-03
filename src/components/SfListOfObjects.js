@@ -12,9 +12,7 @@ class SfListOfObjects extends SfComponent {
   static contextType = GlobalContext;
  
   constructor(props) {
-    super(props);
-    this.world = props.world;      
-      
+    super(props);      
     
     this.state = {  objectType : props.objectType,
                     columns : [],
@@ -76,15 +74,13 @@ class SfListOfObjects extends SfComponent {
   }
 
   onErrorObjectAdded(response)
-  {
-    // console.log("listofobjects onErrorObjectAdded ");
+  {    
+    console.log("listofobjects onErrorObjectAdded ");
   }
 
   onObjectAdded(newobj)
   { 
-    // console.log("listofobjects onObjectAdded length = " + this.state.objects.length);
     let found =  this.state.objects.findIndex( e =>  (e.id === newobj.id) ) ;
-    // console.log("listofobjects onObjectAdded find id  result = " + found);
     if (found === -1)
     {
       this.setState({ objects: [...this.state.objects, newobj] ,
@@ -94,8 +90,6 @@ class SfListOfObjects extends SfComponent {
     {
       this.setState({ curObject : newobj}) ;
     }
-    
-    // console.log("listofobjects onObjectAdded length after = " + this.state.objects.length);
   }
   
   handleEdit(obj) 
@@ -117,7 +111,6 @@ class SfListOfObjects extends SfComponent {
 
   onObjectSaved(newobj)
   { 
-    //console.log("listofobjects onObjectSaved ");
     this.updateObjectsList(this.state.objectType);    
   }
   
@@ -129,11 +122,11 @@ class SfListOfObjects extends SfComponent {
   handleDelete(obj) 
   {
     Modal.confirm({
-      title: 'Confirm',
+      title: this.getRscText("delconfirm0"),
       icon: <ExclamationCircleOutlined />,
-      content: 'Do you really want to DELETE ?',
-      okText: "Yes, sure",
-      cancelText: "no, I don't mean it",
+      content: this.getRscText("delconfirm1"),
+      okText: this.getRscText("delconfirm2"),
+      cancelText: this.getRscText("delconfirm3"),
       onOk: () => {        
         // Let's do it ,  as it is confirmed 
         return this.world.deleteObject( obj , this.onObjectDeleted, this.onErrorObjectDeleted);
