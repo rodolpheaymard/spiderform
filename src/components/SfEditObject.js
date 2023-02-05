@@ -68,7 +68,14 @@ class SfEditObject extends SfComponent {
       
       return result;
     }
-    
+    getImageBox(imgurl)
+    {
+      if (this.isOk(imgurl))
+      {
+        return <div className="sfImage"><img src={imgurl} alt="" /></div>;
+      }
+      return "";
+    }
     getEditor(coldef)
     {
       let value = this.state.curObject[coldef.key];
@@ -104,8 +111,10 @@ class SfEditObject extends SfComponent {
                     {this.getOptionsListType(coldef)}           
                  </Select>;
         case "imageurl" :
-          return <Input placeholder={placeholdertext} key={key} value={value}
-                                 onChange={(e)=>{this.handleChangeInput(key,e)}} />;
+          return <div><Input placeholder={placeholdertext} key={key} value={value}
+                                onChange={(e)=>{this.handleChangeInput(key,e)}} />
+                      {this.getImageBox(value)}
+                </div>;
        default:
           break;
       }     

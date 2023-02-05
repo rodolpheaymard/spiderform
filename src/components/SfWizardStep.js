@@ -210,6 +210,9 @@ class SfWizardStep extends SfComponent {
       let isChosen = (othis, choiceId) =>  { return othis.state.multichoice.has(choiceId); };    
 
       let isFullyAnswered = (othis) => { return othis.state.multichoice.size === this.state.maxi ; }
+      let getDisplay = (c) => { if (c.image !== null && c.image !== undefined) 
+                                { return <div className="sfImage"><img src={c.image} alt="" /></div>;} 
+                                return <></>; }
 
       if (this.isOk(this.state.question))
       {
@@ -224,12 +227,16 @@ class SfWizardStep extends SfComponent {
                             if (isChosen(othis , c.id) === true) 
                             {
                                return  <Checkbox value={c.id} key={c.id} 
-                                                 onChange={othis.onChangeBoxUncheck} checked >{c.text}</Checkbox>;
+                                                 onChange={othis.onChangeBoxUncheck} checked >
+                                                  <Space>{c.text}{getDisplay(c)}</Space>
+                                                  </Checkbox>;
                             }
                             else 
                             { 
                                return  <Checkbox value={c.id} key={c.id}
-                                                 onChange={othis.onChangeBoxCheck} disabled={isFullyAnswered(othis)} >{c.text}</Checkbox>;
+                                                 onChange={othis.onChangeBoxCheck} disabled={isFullyAnswered(othis)} >
+                                                 <Space>{c.text}{getDisplay(c)}</Space>
+                                                 </Checkbox>;
                             }
                             }) }
               </Checkbox.Group>
@@ -241,7 +248,9 @@ class SfWizardStep extends SfComponent {
           choicesBlock = <>
               <Radio.Group onChange={this.handleChoose} value={this.state.singlechoice}>
                 <Space direction="vertical">
-                  {this.state.choices.map( function(c , i) { return  <Radio value={c.id} key={c.id}>{c.text}</Radio> ;})}
+                  {this.state.choices.map( function(c , i) { return  <Radio value={c.id} key={c.id}>
+                                                  <Space>{c.text}{getDisplay(c)}</Space>
+                                                  </Radio> ;})}
                 </Space>
               </Radio.Group>
           </>;
