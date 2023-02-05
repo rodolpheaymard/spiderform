@@ -50,20 +50,23 @@ class SfWizardEnd extends SfComponent {
         useranswer.choices.forEach( (userchoice) => {
           let scores = othis.world.getMatchingScores(userchoice);
           scores.forEach( (matchingscore , conceptid) => { 
-              if (results.has(conceptid) === false)
+              if (this.isOk(conceptid))
               {
-                results.set(conceptid, {  total : 0, 
-                                          scores : [], 
-                                          concept : othis.world.getObjectById(conceptid),
-                                          userchoices : [] });
+                if (results.has(conceptid) === false)
+                {
+                  results.set(conceptid, {  total : 0, 
+                                            scores : [], 
+                                            concept : othis.world.getObjectById(conceptid),
+                                            userchoices : [] });
+                }
+                let resultForConcept =  results.get(conceptid);
+                resultForConcept.total += matchingscore.score;
+                resultForConcept.scores.push(matchingscore);
+  
+                let userchoice = othis.world.getObjectById(matchingscore.choice);
+                let userquestion = othis.world.getObjectById(userchoice.question);
+                resultForConcept.userchoices.push( { score : matchingscore.score,  userchoice :  userchoice, userquestion : userquestion } );  
               }
-              let resultForConcept =  results.get(conceptid)
-              resultForConcept.total += matchingscore.score;
-              resultForConcept.scores.push(matchingscore);
-
-              let userchoice = othis.world.getObjectById(matchingscore.choice);
-              let userquestion = othis.world.getObjectById(userchoice.question);
-              resultForConcept.userchoices.push( { score : matchingscore.score,  userchoice :  userchoice, userquestion : userquestion } );
             }) ;
           });
         });

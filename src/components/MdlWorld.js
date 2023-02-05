@@ -4,6 +4,7 @@ import SfResources from './SfResources';
 
 const dotenv = require('dotenv');
 const secretPass = "XkhZG47zohfaf=+YETxfW2t2W";
+const undefVal = "-";
 
 class MdlWorld 
 {
@@ -291,18 +292,27 @@ class MdlWorld
     return (isNaN(vala) && isNaN(valb) ? (vala || '').localeCompare(valb || '') : vala - valb);
   }
 
-  getFilters( objectType, colKey)
+  getFilters(objectType, colKey)
   {
     let mapResult = new Map();
-    this.datamap.forEach( (obj, id, map) => { 
-                                if (obj.type === objectType) 
-                                { 
-                                  if(mapResult.has(obj[colKey]) !== true)
-                                  {
-                                    mapResult.set(obj[colKey],obj[colKey]);
-                                  }
-                                } 
-                              } );
+    let objs = this.getObjectsByType(objectType);
+    objs.forEach( (obj) => { 
+                            if (obj.type === objectType) 
+                            { 
+                              if (this.isOk(obj[colKey]))
+                              {
+                                if(mapResult.has(obj[colKey]) !== true)
+                                {
+                                  mapResult.set(obj[colKey],obj[colKey]);
+                                }
+                              } else {
+                                if(mapResult.has(undefVal) !== true)
+                                {
+                                  mapResult.set(undefVal,undefVal);
+                                }
+                              }
+                            } 
+                          } );
     let keysArray = [];
     mapResult.forEach( (value,key) => keysArray.push(key) );
     keysArray = keysArray.sort();
@@ -313,32 +323,66 @@ class MdlWorld
 
   applyFilter(value, record, colKey) 
   {    
-    if (this.isNull(record[colKey]))
+    if (value === undefVal)
     {
-      if (value === "undefined" || value === "null")
+      // the undefined value
+      if (this.isNull(record[colKey]))
+      {
         return true;
-      return false;
-    }
-
-    if (isNaN(record[colKey]))
+      }
+    } else if (isNaN(value))
     {
-      return record[colKey].indexOf(value.toString()) === 0 ;
+      // not a number ,  certainly a string ...
+      if (this.isOk(record[colKey]))
+      {
+        let result = (record[colKey].indexOf(value.toString()) >= 0);
+        return result;  
+      }
     }
     else
     {
+      // a number 
       return  record[colKey] === value;
     }
+    return false;
+  }
+
+  getTableText(colKey, colDataChooserLabel, colDataCalculated, record)
+  {
+    if (this.isOk(colDataCalculated))
+    {
+      return this.getCalculatedValue(colDataCalculated, record);
+    }
+    
+    let lnkObject = this.getObjectById(record[colKey]);
+    if (this.isOk(lnkObject))
+    {
+      if (this.isOk(colDataChooserLabel))
+      {
+        return this.getFullText(lnkObject, colDataChooserLabel);
+      }
+      else
+      {
+        return this.getFullText(lnkObject, "");
+      }
+    }
+ 
+    if (this.isNull(record[colKey]))
+    {
+      return undefVal;
+    }
+    return String(record[colKey]);
   }
 
   getColumn( objectType, colKey , colTitle, colDataSpecs )
   {
     let result =  { key : colKey , 
-                    render : (text) => (text !== undefined ? String(text) : ""),
+                    // (text) => (text !== undefined ? String(text) : undefVal),
                     title : colTitle,
                     dataIndex: colKey, 
                     dataChooser: colDataSpecs.mode,
                     filters: this.getFilters(objectType, colKey), 
-                    onFilter: (value, record) => { this.applyFilter(value, record, colKey); }  ,
+                    onFilter: (value, record) => { return this.applyFilter(value, record, colKey); }  ,
                     sorter: (a, b) => this.sortColumn(a,b,colKey)
                   };
 
@@ -351,6 +395,8 @@ class MdlWorld
     if (this.isOk(colDataSpecs.calcpath)) {
       result.dataCalculated = colDataSpecs.calcpath;
     }
+
+    result.render = (_, record) => this.getTableText(colKey, result.dataChooserLabel, result.dataCalculated, record);
 
     return result;
   }
@@ -490,7 +536,9 @@ class MdlWorld
         result.push( this.getColumn(objectType, "sequence" , "Sequence",  { mode : "select",  objtype : "sequence", labelpath : "name" }) );
         result.push( this.getColumn(objectType, "text" , "Text",  { mode : "textmultiline" }) );
         result.push( this.getColumn(objectType, "multichoice" , "Multi",  { mode : "select",  objtype : "yes_or_no" }) );
-      break;
+        result.push( this.getColumn(objectType, "minchoices" , "Min",  { mode : "number" }) );
+        result.push( this.getColumn(objectType, "maxchoices" , "Max",  { mode : "number" }) );
+        break;
       case "choice" :
         result.push( this.getColumn(objectType, "id" , "ID",  { mode : "none" }) );
         result.push( this.getColumn(objectType, "order" , "Order",  { mode : "number" }) );

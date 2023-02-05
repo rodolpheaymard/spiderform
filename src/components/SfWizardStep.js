@@ -12,14 +12,19 @@ class SfWizardStep extends SfComponent {
       this.state = { user : props.user,
                      form : props.form,
                      question :  props.question , 
+                     choices : [],
                      singlechoice : null,
                      multichoice : new Map(),
-                     user_answer : null } ;
-
-      this.loadQuestionData(props.question);
+                     questionmessage : "",
+                     mini : 0,
+                     maxi : 0,
+                     user_answer : null,
+                     version : 0 } ;
 
       this.handleChoose = this.handleChoose.bind(this);    
       this.handleMultiChoose = this.handleMultiChoose.bind(this);    
+      this.onChangeBoxCheck = this.onChangeBoxCheck.bind(this);    
+      this.onChangeBoxUncheck = this.onChangeBoxUncheck.bind(this);    
       this.handleValidate = this.handleValidate.bind(this);   
     
       this.onAnswerCreated = this.onAnswerCreated.bind(this);   
@@ -28,6 +33,8 @@ class SfWizardStep extends SfComponent {
 
     componentDidMount() 
     {
+      this.setState({ question :  this.props.question });
+      this.loadQuestionData(this.props.question);
     }
   
     componentDidUpdate(prevProps) 
@@ -41,13 +48,73 @@ class SfWizardStep extends SfComponent {
 
     loadQuestionData(question)
     {
-      this.sequence = null;  
-      this.choices = [];      
-      if (question !== null && question !== undefined )
+      let sequence1 = null;  
+      let choices1 = [];      
+      let msg = "";
+      let mini = 1;
+      let maxi = 1; 
+
+      if (this.isOk(question))
       {
-        this.sequence = this.world.getObjectById(question.sequence);
-        this.choices = this.world.selectObjects("choice","question",question.id);
-      }      
+        sequence1 = this.world.getObjectById(question.sequence);
+        choices1 = this.world.selectObjects("choice","question",question.id);
+
+        if (question.multichoice === "yes")
+        {
+          if (this.isOk(choices1))
+          {
+            maxi = choices1.size;
+          }
+
+          if ( this.isOk(question.minchoices)  && this.isOk(question.maxchoices) )
+          {          
+            if (question.minchoices < question.maxchoices)
+            {
+              mini = question.minchoices;
+              maxi = question.maxchoices;
+              msg = this.getRscText("multichoicebetween1") + question.minchoices
+                    + this.getRscText("multichoicebetween2") + question.maxchoices
+                    + this.getRscText("multichoicebetween3") ;             
+            }
+            else if (question.minchoices > 0)
+            {
+              mini = question.minchoices;
+              maxi = question.minchoices;
+              msg = this.getRscText("multichoiceexactly1") + question.minchoices
+                    + this.getRscText("multichoiceexactly2") ;         
+            }
+          }
+          else if ( this.isNull(question.minchoices)  && this.isOk(question.maxchoices))
+          {
+            mini = 1;
+            maxi = question.maxchoices;
+
+            msg = this.getRscText("multichoicemaximum1") + question.maxchoices
+                  + this.getRscText("multichoicemaximum2") ;             
+          }          
+          else if ( this.isOk(question.minchoices)  && this.isNull(question.maxchoices))
+          {
+            mini = question.minchoices;
+            if (this.isOk(choices1))
+            {
+              maxi = choices1.size;
+            }
+            msg = this.getRscText("multichoiceminimum1") + question.minchoices
+                  + this.getRscText("multichoiceminimum2") ;        
+          }
+          else if ( this.isNull(question.minchoices)  && this.isOk(question.maxchoices))
+          {
+            mini = 1;
+            maxi = question.maxchoices;
+            msg = this.getRscText("multichoicebetween1") + "1"  
+                  + this.getRscText("multichoicebetween2") + question.maxchoices
+                  + this.getRscText("multichoicebetween3") ;             
+          }
+        }
+      } 
+      
+      this.setState( { sequence : sequence1 , choices : choices1, 
+                       questionmessage : msg  , mini : mini , maxi : maxi }  );         
     }
  
     handleChoose(event) 
@@ -58,10 +125,37 @@ class SfWizardStep extends SfComponent {
 
     handleMultiChoose(checkedValues) 
     {
+      if (checkedValues.length > this.state.maxi)
+      {        
+        this.setState( { version : this.state.version + 1 });
+        return;
+      }
+
       let new_mchoice = new Map();
       checkedValues.forEach( cid => new_mchoice.set(cid,true));
-  
       this.setState( { multichoice : new_mchoice });
+    }
+
+    onChangeBoxCheck(event) 
+    {
+      /*
+      if (this.state.multichoice.size === this.state.maxi)
+      {
+        event.target.checked = false;
+      } 
+      else
+      {
+        this.state.multichoice.set(event.target.value, true);
+        this.setState({ multichoice : this.state.multichoice });  
+      }*/
+    }
+    
+    onChangeBoxUncheck(event) 
+    {   
+      /*
+      this.state.multichoice.delete(event.target.value);
+      this.setState( { multichoice : this.state.multichoice });
+      */
     }
     
     handleValidate(event)
@@ -104,15 +198,18 @@ class SfWizardStep extends SfComponent {
       let buttonValidate = <></>;
        
       let isAnswered = (othis) => { if (othis.state.singlechoice !== null)
-                                      { return true; }
-                                    if (othis.state.multichoice.size !== 0)
-                                      { return true; }
+                                    {
+                                       return true; 
+                                    }
+                                    else if ( othis.state.multichoice.size >= this.state.mini )
+                                    { 
+                                      return true; 
+                                    }
                                     return false;
                                   };
-      let isChosen = (othis, choiceId) =>  { if (othis.state.multichoice.get(choiceId)=== true) 
-                                                { return "checked";}
-                                              return "";
-                                            };
+      let isChosen = (othis, choiceId) =>  { return othis.state.multichoice.has(choiceId); };    
+
+      let isFullyAnswered = (othis) => { return othis.state.multichoice.size === this.state.maxi ; }
 
       if (this.isOk(this.state.question))
       {
@@ -120,12 +217,21 @@ class SfWizardStep extends SfComponent {
         {
           let othis = this;
           choicesBlock = <>            
-             <Space direction="vertical">             
+             <Space direction="vertical">
+              {this.state.questionmessage}         
               <Checkbox.Group    onChange={this.handleMultiChoose} >
-               {this.choices.map( function(c , i) { 
-                            if (isChosen(othis , c.id)) { return  <Checkbox value={c.id} key={c.id} checked >{c.text}</Checkbox> ;}
-                            else { return  <Checkbox value={c.id} key={c.id}  >{c.text}</Checkbox> ;}
-                          }) }
+               {this.state.choices.map( function(c , i) { 
+                            if (isChosen(othis , c.id) === true) 
+                            {
+                               return  <Checkbox value={c.id} key={c.id} 
+                                                 onChange={othis.onChangeBoxUncheck} checked >{c.text}</Checkbox>;
+                            }
+                            else 
+                            { 
+                               return  <Checkbox value={c.id} key={c.id}
+                                                 onChange={othis.onChangeBoxCheck} disabled={isFullyAnswered(othis)} >{c.text}</Checkbox>;
+                            }
+                            }) }
               </Checkbox.Group>
              </Space>
            </>;
@@ -135,7 +241,7 @@ class SfWizardStep extends SfComponent {
           choicesBlock = <>
               <Radio.Group onChange={this.handleChoose} value={this.state.singlechoice}>
                 <Space direction="vertical">
-                  {this.choices.map( function(c , i) { return  <Radio value={c.id} key={c.id}>{c.text}</Radio> ;})}
+                  {this.state.choices.map( function(c , i) { return  <Radio value={c.id} key={c.id}>{c.text}</Radio> ;})}
                 </Space>
               </Radio.Group>
           </>;
@@ -158,7 +264,7 @@ class SfWizardStep extends SfComponent {
         }
       }
       return (<>      
-               <Card title={this.sequence !== null && this.sequence !== undefined ? this.sequence.name : ""} 
+               <Card title={this.isOk(this.state.sequence) ? this.state.sequence.name : ""} 
                     className="sfWizardStep">
 
  
@@ -177,6 +283,7 @@ class SfWizardStep extends SfComponent {
               </Card>
               </>  );
     }
-}
+  }
+
  
 export default SfWizardStep;

@@ -40,6 +40,20 @@ class SfResources {
     
     mapDef.set("validate" , "Validate");
     
+
+
+    mapDef.set("multichoiceexactly1" , "Choose ");
+    mapDef.set("multichoiceexactly2" , " options :");
+
+    mapDef.set("multichoicemaximum1" , "Choose up to ");
+          mapDef.set("multichoicemaximum2" , " options :");
+
+          mapDef.set("multichoiceminimum1" , "Choose at least ");
+          mapDef.set("multichoiceminimum2" , " options :");
+
+          mapDef.set("multichoicebetween1" , "Choose between ");
+          mapDef.set("multichoicebetween2" , " and ");
+          mapDef.set("multichoicebetween3" , " options : ");
     //mapDef.set("" , "");
     
   }
