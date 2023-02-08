@@ -20,7 +20,7 @@ class SfResources {
     mapDef.set("delconfirm3" , "no, I don't mean it. oups");
     mapDef.set("dl_full" , "Download full export");
 
-    mapDef.set("loggued" , "you are loggued in");
+    mapDef.set("loggued" , "you are logged in");
     mapDef.set("signin" , "Sign In");
     mapDef.set("signup" , "Sign Up");
     mapDef.set("signout" , "Sign Out");
@@ -39,23 +39,23 @@ class SfResources {
     mapDef.set("start" , "Start");
     
     mapDef.set("validate" , "Validate");
-    
-
 
     mapDef.set("multichoiceexactly1" , "Choose ");
     mapDef.set("multichoiceexactly2" , " options :");
 
     mapDef.set("multichoicemaximum1" , "Choose up to ");
-          mapDef.set("multichoicemaximum2" , " options :");
+    mapDef.set("multichoicemaximum2" , " options :");
 
-          mapDef.set("multichoiceminimum1" , "Choose at least ");
-          mapDef.set("multichoiceminimum2" , " options :");
+    mapDef.set("multichoiceminimum1" , "Choose at least ");
+    mapDef.set("multichoiceminimum2" , " options :");
 
-          mapDef.set("multichoicebetween1" , "Choose between ");
-          mapDef.set("multichoicebetween2" , " and ");
-          mapDef.set("multichoicebetween3" , " options : ");
-    //mapDef.set("" , "");
-    
+    mapDef.set("multichoicebetween1" , "Choose between ");
+    mapDef.set("multichoicebetween2" , " and ");
+    mapDef.set("multichoicebetween3" , " options : ");
+
+    mapDef.set("text_dl_results" , "Remember to download your results and to forward them to your orientation counselor.");
+    mapDef.set("dl_results" , "Click here to download your results");
+
   }
 
   getText(key) 

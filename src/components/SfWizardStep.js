@@ -1,6 +1,6 @@
 import React from 'react';
 import SfComponent from './SfComponent';
-import { Radio , Checkbox , Space, Button, Card } from "antd"; 
+import { Radio , Checkbox , Space, Button, Card ,Row } from "antd"; 
 
 
 class SfWizardStep extends SfComponent {
@@ -222,21 +222,21 @@ class SfWizardStep extends SfComponent {
           choicesBlock = <>            
              <Space direction="vertical">
               {this.state.questionmessage}         
-              <Checkbox.Group    onChange={this.handleMultiChoose} >
+              <Checkbox.Group    onChange={this.handleMultiChoose} className="sfMultiChoiceGroup" >
                {this.state.choices.map( function(c , i) { 
                             if (isChosen(othis , c.id) === true) 
                             {
-                               return  <Checkbox value={c.id} key={c.id} 
+                               return  <Row className="sfMultiChoiceGroupRow" ><Checkbox value={c.id} key={c.id} 
                                                  onChange={othis.onChangeBoxUncheck} checked >
                                                   <Space>{c.text}{getDisplay(c)}</Space>
-                                                  </Checkbox>;
+                                                  </Checkbox></Row>;
                             }
                             else 
                             { 
-                               return  <Checkbox value={c.id} key={c.id}
+                               return  <Row className="sfMultiChoiceGroupRow" ><Checkbox value={c.id} key={c.id}
                                                  onChange={othis.onChangeBoxCheck} disabled={isFullyAnswered(othis)} >
                                                  <Space>{c.text}{getDisplay(c)}</Space>
-                                                 </Checkbox>;
+                                                 </Checkbox></Row>;
                             }
                             }) }
               </Checkbox.Group>

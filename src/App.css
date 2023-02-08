@@ -1,9 +1,9 @@
 .sfFormPage {
   font-family: sans-serif;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
   gap: 10px;
   height: 100vh;
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
@@ -55,8 +55,8 @@
 }
 
 .sfImage {
-  width: 100px; 
-  height: 80px; 
+  width: 120px; 
+  height: 120px; 
 }
 
 .sfImage img{
@@ -134,4 +134,16 @@
   flex-direction: column;
   padding: 15px 15px 15px 15px;
   width: 75%;
+}
+
+.sfMultiChoiceGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 10px 10px 10px;
+}
+
+.sfMultiChoiceGroupRow {
+  margin: 8px 8px 8px 8px;
 }

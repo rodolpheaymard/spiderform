@@ -1,10 +1,19 @@
 import React from 'react';
 import SfComponent from './SfComponent';
-import { Card , Space, Collapse } from "antd"; 
+import { Card , Space, Collapse, Divider } from "antd"; 
 import SfWizardResult from './SfWizardResult';
 import { GlobalContext } from "./GlobalContext";
 
+import DownloadLink from "react-download-link";
+
+//import SfPdfResults from './SfPdfResults';
+//import ReactPDF from '@react-18-pdf/renderer';
+
+
 const { Panel } = Collapse;
+
+
+
 
 class SfWizardEnd extends SfComponent {
   static contextType = GlobalContext;  // global context for session  
@@ -84,6 +93,63 @@ class SfWizardEnd extends SfComponent {
     {      
     }
 
+    buildResultsFileName()
+    {    
+      let objUser = this.world.getObjectById(this.state.user);
+
+      return "results_" + (objUser !== null ? objUser.username : "x") + ".txt";
+    }
+    
+    buildResultsFile()
+    {    
+      let lines = [];
+      let w = this.world;
+      let objForm = w.getObjectById(this.state.form);
+
+      lines.push("Form : "+ (objForm !== null ? objForm.name : "?") );      
+      let today = new Date();
+      lines.push("Generated " + today.getFullYear() + "/"+ (today.getMonth() + 1) + "/"+ today.getDate() + "." );
+
+      lines.push("\n----------------------------------------");      
+      lines.push("Results ");
+      this.state.results.forEach((objData , conceptid) =>  { 
+        lines.push( "  " + objData.concept.name + " : " + objData.total + " " + w.getRscText("pts") ); 
+      });
+
+      lines.push("\n----------------------------------------");
+      lines.push("Details ");      
+      if (this.isOk(this.state.userdata))
+      {
+        this.state.userdata.forEach( ( useranswer, questionid) => {
+        let objQuestion = w.getObjectById(questionid);
+        let written = false;
+        useranswer.choices.forEach( (userchoice) => {            
+          let scores = w.getMatchingScores(userchoice);
+          scores.forEach( (matchingscore , conceptid) => { 
+              let objChoice = w.getObjectById(matchingscore.choice);              
+              if (this.isOk(conceptid))
+              {              
+                let objConcept = w.getObjectById(conceptid);
+
+                if (written === false)
+                {
+                  lines.push( "\n [Q] " + objQuestion.text );
+                  written = true;
+                }                   
+                lines.push ( "    [A] " + objChoice.text );
+                lines.push ( "      => [" + objConcept.name + "] " + matchingscore.score + " "+ w.getRscText("pts"));       
+              }
+            }) ;
+          });
+        });
+      }
+
+      let result = lines.join("\n");
+      return result;
+
+      //ReactPDF.renderToStream(<SfPdfResults />);
+    }
+
 
     render()
     {
@@ -108,6 +174,14 @@ class SfWizardEnd extends SfComponent {
                 <Collapse  accordion>        
                   { listResults }
                 </Collapse>
+
+                <Divider/>
+                {this.getRscText("text_dl_results")}
+                <br/>
+                <DownloadLink    label= {this.getRscText("dl_results")}
+                                     filename={this.buildResultsFileName()}
+                                     exportFile={this.buildResultsFile.bind(this)}
+                                    />
               </Card>
               </>  );
     }

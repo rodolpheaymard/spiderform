@@ -58,6 +58,8 @@ class SfWizardResult extends SfComponent {
                 <div> {this.state.data.concept.explanation} </div> 
                 <div> {blockExplanations} </div>
                 <div> {blockDetails} </div>
+
+             
               </> );
     }
 }
